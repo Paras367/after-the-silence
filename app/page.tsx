@@ -1,10 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-
-type Status = 'Legal landmark' | 'Convicted' | 'Concluded' | 'Trial' | 'Ongoing';
-
 
 /* ============================================================
    DATA & CONSTANTS
@@ -31,6 +27,19 @@ interface CaseData {
   desc: string;
   sections: Record<string, string>;
 }
+
+const SECTION_LABELS: Record<string, string> = {
+  what: "What happened",
+  who: "Who",
+  investigation: "Investigation",
+  police: "Police response",
+  court: "Court proceedings",
+  public: "Public response",
+  government: "Government response",
+  changed: "What changed",
+  notchanged: "What has not changed",
+  current: "Current status",
+};
 
 const CASES: CaseData[] = [
   {
@@ -145,6 +154,13 @@ const REFORMS = [
   { name: "Public transport safety measures", promise: "Mandates for panic buttons, GPS tracking, and stricter driver-verification in public and app-based transport.", implementation: "Rules exist in several states, but enforcement has been repeatedly questioned after subsequent incidents.", evidence: "State transport department notifications; post-incident reporting.", status: "fail" as const },
 ];
 
+const REFORM_MARKS: Record<string, string> = {
+  impl: "✓ Implemented",
+  partial: "⚠ Partially Implemented",
+  fail: "✕ Documented Failure",
+  unknown: "? Insufficient Evidence",
+};
+
 const TIMELINE = [
   { year: "1972", title: "Mathura Custodial Rape Case", what: "Alleged custodial rape; 1979 Supreme Court acquittal sparks the modern anti-rape movement.", promise: "Legal reform of rape law.", changed: "1983 amendments on custodial rape and burden of proof." },
   { year: "1992", title: "Bhanwari Devi Case", what: "Alleged gang rape of a government worker opposing child marriage.", promise: "Workplace protection for women.", changed: "1997 Vishaka Guidelines." },
@@ -171,108 +187,163 @@ const STATUS_LABELS: Record<CaseStatus, string> = {
   acquitted: "Acquitted", appeal: "Appeal", ongoing: "Ongoing", landmark: "Legal Landmark"
 };
 
+const NAV_LINKS = [
+  { href: "#hero", label: "Home" },
+  { href: "#archive", label: "Cases" },
+  { href: "#timeline", label: "Timeline" },
+  { href: "#reforms", label: "Reforms" },
+  { href: "#accountability", label: "Accountability" },
+  { href: "#sources", label: "Sources" },
+];
+
+/* ============================================================
+   SMALL COMPONENTS
+   ============================================================ */
+
+// Counter ab React state se chalta hai — direct DOM chhedna band.
+function Stat({ target, suffix = "", label, source }: { target?: number; suffix?: string; label: string; source: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (target === undefined || !ref.current) return;
+    const el = ref.current;
+    let raf = 0;
+    const run = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setValue(target);
+        return;
+      }
+      const start = performance.now();
+      const dur = 1100;
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - start) / dur);
+        setValue(Math.round(target * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { run(); io.disconnect(); }
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [target]);
+
+  return (
+    <div className="stat" ref={ref}>
+      <div className="num">{target === undefined ? "N/A" : value.toLocaleString('en-IN') + suffix}</div>
+      <div className="lbl">{label}</div>
+      <div className="src">{source}</div>
+    </div>
+  );
+}
+
+function HeroVisual() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 620" role="img" aria-label="Illustration of a public record document with three questions: what happened, what changed, what remains">
+      <defs>
+        <radialGradient id="glow"><stop offset="0" stopColor="#a51d29" stopOpacity=".55" /><stop offset="1" stopColor="#a51d29" stopOpacity="0" /></radialGradient>
+        <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f1eee6" /><stop offset="1" stopColor="#c8c2b7" /></linearGradient>
+      </defs>
+      <rect width="460" height="620" fill="#0f0d0c" />
+      <ellipse cx="230" cy="310" rx="220" ry="280" fill="url(#glow)" />
+      <g transform="rotate(4 230 310)">
+        <rect x="55" y="50" width="350" height="520" rx="4" fill="url(#paper)" />
+        <path d="M345 50H405V110Z" fill="#aaa59f" />
+        <text x="82" y="100" fill="#252525" fontFamily="Georgia, serif" fontSize="22" fontWeight="bold">THE RECORD</text>
+        <text x="82" y="120" fill="#666" fontFamily="Arial, sans-serif" fontSize="9" letterSpacing="2">PUBLIC INTEREST ARCHIVE</text>
+        <line x1="82" y1="140" x2="378" y2="140" stroke="#333" strokeOpacity=".3" />
+        <text x="82" y="185" fill="#333" fontFamily="Georgia, serif" fontSize="22" fontWeight="bold">WHAT HAPPENED?</text>
+        <rect x="82" y="202" width="240" height="6" rx="3" fill="#555" opacity=".5" />
+        <rect x="82" y="218" width="280" height="6" rx="3" fill="#555" opacity=".3" />
+        <text x="82" y="285" fill="#333" fontFamily="Georgia, serif" fontSize="22" fontWeight="bold">WHAT CHANGED?</text>
+        <rect x="82" y="302" width="270" height="6" rx="3" fill="#555" opacity=".4" />
+        <rect x="82" y="318" width="210" height="6" rx="3" fill="#555" opacity=".3" />
+        <text x="82" y="385" fill="#8d171f" fontFamily="Georgia, serif" fontSize="22" fontWeight="bold">WHAT REMAINS?</text>
+        <rect x="82" y="402" width="260" height="6" rx="3" fill="#8d171f" opacity=".4" />
+        <rect x="82" y="418" width="180" height="6" rx="3" fill="#8d171f" opacity=".3" />
+        <line x1="82" y1="500" x2="378" y2="500" stroke="#333" strokeOpacity=".25" />
+        <text x="82" y="530" fill="#555" fontFamily="Arial, sans-serif" fontSize="10" letterSpacing="2">EVIDENCE · SOURCES · TIMELINE</text>
+      </g>
+    </svg>
+  );
+}
+
+/* ============================================================
+   PAGE
+   ============================================================ */
 export default function Home() {
   const [isLightMode, setIsLightMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<CaseData | null>(null);
-  
+  const [showTop, setShowTop] = useState(false);
+
   const [search, setSearch] = useState("");
   const [era, setEra] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
 
-  const statsRef = useRef<HTMLDivElement>(null);
-  const [countsStarted, setCountsStarted] = useState(false);
-
   useEffect(() => {
-    if (isLightMode) {
-      document.body.classList.add('light');
-    } else {
-      document.body.classList.remove('light');
-    }
+    document.body.classList.toggle('light', isLightMode);
+    return () => document.body.classList.remove('light');
   }, [isLightMode]);
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedCase(null);
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelectedCase(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   useEffect(() => {
-    if (!statsRef.current) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !countsStarted) {
-        setCountsStarted(true);
-        document.querySelectorAll<HTMLElement>(".stat .num[data-target]").forEach(el => {
-          const target = parseInt(el.dataset.target || "0", 10);
-          if (isNaN(target)) return;
-          let cur = 0;
-          const step = Math.max(1, Math.round(target / 40));
-          const suffix = el.dataset.suffix || "";
-          const tick = () => {
-            cur += step;
-            if (cur >= target) {
-              el.textContent = target + suffix;
-              return;
-            }
-            el.textContent = cur + suffix;
-            requestAnimationFrame(tick);
-          };
-          tick();
-        });
-      }
-    }, { threshold: 0.4 });
-    observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, [countsStarted]);
+    const onScroll = () => setShowTop(window.scrollY > 700);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
+  // Modal khula ho toh peeche ka page scroll na kare
+  useEffect(() => {
+    document.body.style.overflow = selectedCase ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [selectedCase]);
+
+  const q = search.trim().toLowerCase();
   const filteredCases = CASES.filter(c => {
-    const matchQ = !search || c.title.toLowerCase().includes(search) || c.location.toLowerCase().includes(search) || c.desc.toLowerCase().includes(search);
-    const matchEra = !era || c.era === era;
-    const matchType = !type || c.type === type;
-    const matchStatus = !status || c.status === status;
-    return matchQ && matchEra && matchType && matchStatus;
+    const matchQ = !q || c.title.toLowerCase().includes(q) || c.location.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q);
+    return matchQ && (!era || c.era === era) && (!type || c.type === type) && (!status || c.status === status);
   });
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const isCourtStatus = selectedCase && ['convicted', 'landmark', 'acquitted'].includes(selectedCase.status);
+  const isOpenStatus = selectedCase && ['investigation', 'trial', 'ongoing', 'appeal'].includes(selectedCase.status);
 
   return (
-  <main className="archive-root">
+    <div className="archive-root">
       <style>{CSS}</style>
       <a href="#main" className="skip-link">Skip to main content</a>
 
       {/* NAVIGATION */}
-      <header className="site-nav" role="banner">
+      <header className="site-nav">
         <div className="nav-inner">
           <div className="brand">AFTER THE <span>SILENCE</span></div>
           <nav className="links" aria-label="Main navigation">
-            <a href="#hero">Home</a>
-            <a href="#archive">Cases</a>
-            <a href="#timeline">Timeline</a>
-            <a href="#reforms">Reforms</a>
-            <a href="#accountability">Accountability</a>
-            <a href="#sources">Sources</a>
+            {NAV_LINKS.map(l => <a key={l.href} href={l.href}>{l.label}</a>)}
           </nav>
           <div className="nav-actions">
-            <button className="mode-toggle" onClick={() => setIsLightMode(!isLightMode)} aria-pressed={isLightMode}>
+            <button className="mode-toggle" onClick={() => setIsLightMode(v => !v)} aria-pressed={isLightMode}>
               {isLightMode ? "DARK MODE" : "LIGHT MODE"}
             </button>
             <a href="#archive" className="btn-explore">EXPLORE ARCHIVE →</a>
-            <button className="hamburger" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-expanded={isMobileMenuOpen} aria-controls="mobile-menu">
+            <button className="hamburger" onClick={() => setIsMobileMenuOpen(v => !v)} aria-expanded={isMobileMenuOpen} aria-controls="mobile-menu" aria-label="Toggle menu">
               {isMobileMenuOpen ? "✕" : "☰"}
             </button>
           </div>
         </div>
         {isMobileMenuOpen && (
-          <nav id="mobile-menu" aria-label="Mobile navigation">
-            <a href="#hero" onClick={() => setIsMobileMenuOpen(false)}>Home</a>
-            <a href="#archive" onClick={() => setIsMobileMenuOpen(false)}>Cases</a>
-            <a href="#timeline" onClick={() => setIsMobileMenuOpen(false)}>Timeline</a>
-            <a href="#reforms" onClick={() => setIsMobileMenuOpen(false)}>Reforms</a>
-            <a href="#accountability" onClick={() => setIsMobileMenuOpen(false)}>Accountability</a>
-            <a href="#sources" onClick={() => setIsMobileMenuOpen(false)}>Sources</a>
+          <nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation">
+            {NAV_LINKS.map(l => (
+              <a key={l.href} href={l.href} onClick={() => setIsMobileMenuOpen(false)}>{l.label}</a>
+            ))}
           </nav>
         )}
       </header>
@@ -280,86 +351,23 @@ export default function Home() {
       <main id="main">
         {/* HERO */}
         <section id="hero" className="hero">
-          <div className="hero-visual">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#050505" />
-                  <stop offset=".55" stopColor="#151515" />
-                  <stop offset="1" stopColor="#070707" />
-                </linearGradient>
-                <radialGradient id="glow">
-                  <stop offset="0" stopColor="#a51d29" stopOpacity=".5" />
-                  <stop offset="1" stopColor="#a51d29" stopOpacity="0" />
-                </radialGradient>
-                <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#f1eee6" />
-                  <stop offset="1" stopColor="#c8c2b7" />
-                </linearGradient>
-                <filter id="blur"><feGaussianBlur stdDeviation="35" /></filter>
-                <filter id="shadow"><feDropShadow dx="0" dy="25" stdDeviation="25" floodColor="#000" floodOpacity=".65" /></filter>
-                <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                  <path d="M60 0H0V60" fill="none" stroke="#fff" strokeOpacity=".035" />
-                </pattern>
-              </defs>
-              <rect width="1400" height="900" fill="url(#bg)" />
-              <rect width="1400" height="900" fill="url(#grid)" />
-              <ellipse cx="1050" cy="420" rx="420" ry="380" fill="url(#glow)" filter="url(#blur)" />
-              <line x1="80" y1="90" x2="1320" y2="90" stroke="#fff" strokeOpacity=".15" />
-              <text x="80" y="68" fill="#aaa59c" fontFamily="Arial, sans-serif" fontSize="13" letterSpacing="4">INDIA • WOMEN • JUSTICE • ACCOUNTABILITY</text>
-              <text x="80" y="205" fill="#eeeae2" fontFamily="Georgia, serif" fontSize="72" fontWeight="bold">SOME CASES</text>
-              <text x="80" y="285" fill="#eeeae2" fontFamily="Georgia, serif" fontSize="72" fontWeight="bold">CHANGED LAWS.</text>
-              <text x="80" y="385" fill="#a51d29" fontFamily="Georgia, serif" fontSize="76" fontWeight="bold">DID THEY</text>
-              <text x="80" y="465" fill="#a51d29" fontFamily="Georgia, serif" fontSize="76" fontWeight="bold">CHANGE REALITY?</text>
-              <line x1="84" y1="505" x2="535" y2="505" stroke="#a51d29" strokeWidth="2" />
-              <text x="80" y="550" fill="#aaa59c" fontFamily="Arial, sans-serif" fontSize="17" letterSpacing="3">REMEMBER • DOCUMENT • QUESTION</text>
-              <g transform="rotate(5 985 425)" filter="url(#shadow)">
-                <rect x="760" y="125" width="430" height="600" rx="5" fill="url(#paper)" />
-                <path d="M1115 125H1190V200Z" fill="#aaa59f" />
-                <text x="805" y="180" fill="#252525" fontFamily="Georgia, serif" fontSize="25" fontWeight="bold" letterSpacing="2">THE RECORD</text>
-                <text x="805" y="207" fill="#777" fontFamily="Arial, sans-serif" fontSize="10" letterSpacing="2">PUBLIC INTEREST ARCHIVE</text>
-                <line x1="805" y1="230" x2="1145" y2="230" stroke="#333" strokeOpacity=".25" />
-                <text x="805" y="275" fill="#333" fontFamily="Georgia, serif" fontSize="30" fontWeight="bold">WHAT HAPPENED?</text>
-                <rect x="805" y="295" width="300" height="7" rx="3" fill="#555" opacity=".5" />
-                <rect x="805" y="315" width="330" height="7" rx="3" fill="#555" opacity=".3" />
-                <text x="805" y="390" fill="#333" fontFamily="Georgia, serif" fontSize="30" fontWeight="bold">WHAT CHANGED?</text>
-                <rect x="805" y="410" width="330" height="7" rx="3" fill="#555" opacity=".4" />
-                <text x="805" y="505" fill="#8d171f" fontFamily="Georgia, serif" fontSize="30" fontWeight="bold">WHAT REMAINS?</text>
-                <rect x="805" y="525" width="320" height="7" rx="3" fill="#8d171f" opacity=".35" />
-                <line x1="805" y1="620" x2="1145" y2="620" stroke="#333" strokeOpacity=".2" />
-                <text x="805" y="655" fill="#555" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="3">EVIDENCE • SOURCES • TIMELINE</text>
-              </g>
-              <g>
-                <line x1="80" y1="680" x2="680" y2="680" stroke="#aaa59c" strokeOpacity=".25" />
-                <circle cx="110" cy="680" r="7" fill="#a51d29" />
-                <circle cx="260" cy="680" r="5" fill="#aaa59c" />
-                <circle cx="410" cy="680" r="5" fill="#aaa59c" />
-                <circle cx="560" cy="680" r="5" fill="#aaa59c" />
-                <circle cx="665" cy="680" r="7" fill="#a51d29" />
-                <text x="92" y="715" fill="#a51d29" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="2">1970s</text>
-                <text x="240" y="715" fill="#aaa59c" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="2">1990s</text>
-                <text x="390" y="715" fill="#aaa59c" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="2">2012</text>
-                <text x="535" y="715" fill="#aaa59c" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="2">2020s</text>
-                <text x="625" y="715" fill="#a51d29" fontFamily="Arial, sans-serif" fontSize="11" letterSpacing="2">TODAY</text>
-              </g>
-              <text x="80" y="820" fill="#d6d1c8" fontFamily="Georgia, serif" fontSize="23" fontStyle="italic">"A case can end in court. The questions it leaves behind may not."</text>
-              <path d="M40 40h45M40 40v45M1360 860h-45M1360 860v-45" stroke="#a51d29" strokeWidth="2" fill="none" />
-            </svg>
-          </div>
-          <div className="wrap">
-            <div className="eyebrow">INDIA • WOMEN • JUSTICE • ACCOUNTABILITY</div>
-            <h1>"Some cases changed laws. Did they change reality?"</h1>
-            <p className="lede">India has witnessed cases that shook the nation, exposed institutional failures, changed legislation and forced governments to promise reform.</p>
-            <p className="lede">This archive asks what happened after the headlines disappeared.</p>
-            <div className="hero-actions">
-              <a href="#archive" className="btn primary">EXPLORE THE CASES</a>
-              <a href="#timeline" className="btn">FOLLOW THE TIMELINE</a>
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <div className="eyebrow">INDIA • WOMEN • JUSTICE • ACCOUNTABILITY</div>
+              <h1>“Some cases changed laws. Did they change reality?”</h1>
+              <p className="lede">India has witnessed cases that shook the nation, exposed institutional failures, changed legislation and forced governments to promise reform.</p>
+              <p className="lede">This archive asks what happened after the headlines disappeared.</p>
+              <div className="hero-actions">
+                <a href="#archive" className="btn primary">EXPLORE THE CASES</a>
+                <a href="#timeline" className="btn">FOLLOW THE TIMELINE</a>
+              </div>
+              <div className="hero-strip">
+                <span>REMEMBER</span><span>DOCUMENT</span><span>QUESTION</span><span>ACCOUNT</span>
+              </div>
             </div>
-            <div className="hero-strip">
-              <span>REMEMBER</span>
-              <span>DOCUMENT</span>
-              <span>QUESTION</span>
-              <span>ACCOUNT</span>
+            <div className="hero-visual" aria-hidden="false">
+              <HeroVisual />
+              <p className="hero-quote">“A case can end in court. The questions it leaves behind may not.”</p>
             </div>
           </div>
         </section>
@@ -375,7 +383,7 @@ export default function Home() {
 
         {/* NIRBHAYA CENTERPIECE */}
         <section id="nirbhaya" className="on-rule">
-          <div className="section-inner wrap">
+          <div className="wrap">
             <div className="cp-head">
               <div>
                 <div className="eyebrow">Centerpiece Archive</div>
@@ -383,17 +391,17 @@ export default function Home() {
               </div>
               <div className="cp-years">16 DECEMBER 2012 · DELHI</div>
             </div>
-            <div className="cp-statement">"A case that changed India's legal landscape."</div>
-            
+            <div className="cp-statement">“A case that changed India’s legal landscape.”</div>
+
             <div className="cp-block">
               <div><span className="cp-block-num">01</span><h4>What Happened</h4></div>
               <div className="cp-block-body">
-                <p>A 23-year-old physiotherapy student was subjected to brutal sexual assault and violence aboard a moving private bus in Delhi. She succumbed to her injuries days later. The facts are presented here without graphic detail, respecting the victim's dignity.</p>
+                <p>A 23-year-old physiotherapy student was subjected to brutal sexual assault and violence aboard a moving private bus in Delhi. She succumbed to her injuries days later. The facts are presented here without graphic detail, respecting the victim’s dignity.</p>
               </div>
             </div>
 
             <div className="cp-block">
-              <div><span className="cp-block-num">02</span><h4>Investigation & Public Response</h4></div>
+              <div><span className="cp-block-num">02</span><h4>Investigation &amp; Public Response</h4></div>
               <div className="cp-block-body">
                 <p>The case triggered unprecedented nationwide protests, demanding systemic change, faster justice, and safer public spaces for women. The investigation was fast-tracked due to intense public scrutiny.</p>
               </div>
@@ -417,7 +425,7 @@ export default function Home() {
                     <ul>
                       <li>Expanded legal definitions and harsher penalties.</li>
                       <li>Establishment of fast-track courts (with mixed efficacy).</li>
-                      <li>Creation of the Nirbhaya Fund for women's safety initiatives.</li>
+                      <li>Creation of the Nirbhaya Fund for women’s safety initiatives.</li>
                       <li>Increased public awareness, though conviction rates remain a systemic challenge.</li>
                     </ul>
                   </div>
@@ -431,8 +439,8 @@ export default function Home() {
         </section>
 
         {/* 2026 SLEEPER BUS CENTERPIECE */}
-        <section id="sleeper-bus-2026" className="on-rule">
-          <div className="section-inner wrap">
+        <section id="sleeper-bus-2026">
+          <div className="wrap">
             <div className="cp-head">
               <div>
                 <div className="eyebrow">Centerpiece Archive</div>
@@ -440,10 +448,10 @@ export default function Home() {
               </div>
               <div className="cp-years">2026 · ONGOING</div>
             </div>
-            
+
             <div className="status-ribbon">ONGOING / DEVELOPING CASE</div>
-            
-            <div className="cp-statement">"14 YEARS LATER: Why are we still talking about buses?"</div>
+
+            <div className="cp-statement">“14 YEARS LATER: Why are we still talking about buses?”</div>
 
             <div className="cp-block">
               <div><span className="cp-block-num">01</span><h4>The Incident</h4></div>
@@ -468,14 +476,14 @@ export default function Home() {
         </section>
 
         {/* CASE ARCHIVE */}
-        <section id="archive">
-          <div className="section-inner wrap">
+        <section id="archive" className="on-rule">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">The Archive</div>
               <h2>Case Records</h2>
               <p>Every entry is tagged with its evidentiary status. Hover over tags for definitions.</p>
             </div>
-            
+
             <div className="archive-controls">
               <div className="search-box">
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search cases, locations, or keywords..." aria-label="Search cases" />
@@ -502,22 +510,22 @@ export default function Home() {
                 <option value="ongoing">Ongoing</option>
                 <option value="landmark">Legal Landmark</option>
               </select>
-              <div className="filter-count">{filteredCases.length} of {CASES.length} cases</div>
+              <div className="filter-count" aria-live="polite">{filteredCases.length} of {CASES.length} cases</div>
             </div>
 
-            <div className="case-grid" role="list">
+            <div className="case-grid">
               {filteredCases.length === 0 ? (
                 <div className="empty-state">No cases match this search. Try clearing a filter.</div>
               ) : (
                 filteredCases.map(c => (
-                  <button key={c.id} className="case-card reveal" onClick={() => setSelectedCase(c)} aria-haspopup="dialog">
-                    <div className="year">{c.year} · {c.location}</div>
-                    <h3>{c.title}</h3>
-                    <p className="desc">{c.desc}</p>
-                    <div className="foot">
+                  <button key={c.id} className="case-card" onClick={() => setSelectedCase(c)} aria-haspopup="dialog">
+                    <span className="year">{c.year} · {c.location}</span>
+                    <span className="ctitle">{c.title}</span>
+                    <span className="desc">{c.desc}</span>
+                    <span className="foot">
                       <span className={`status-pill ${c.status}`}>{STATUS_LABELS[c.status]}</span>
                       <span className="loc">{c.type}</span>
-                    </div>
+                    </span>
                   </button>
                 ))
               )}
@@ -526,8 +534,8 @@ export default function Home() {
         </section>
 
         {/* REFORM TIMELINE */}
-        <section id="timeline" className="on-rule">
-          <div className="section-inner wrap">
+        <section id="timeline">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">Historical Record</div>
               <h2>The Reform Timeline</h2>
@@ -535,7 +543,7 @@ export default function Home() {
             </div>
             <div className="timeline">
               {TIMELINE.map((t, i) => (
-                <div key={i} className="tl-node reveal">
+                <div key={i} className="tl-node">
                   <div className="tl-year">{t.year}</div>
                   <h4>{t.title}</h4>
                   <div className="tl-grid">
@@ -550,14 +558,14 @@ export default function Home() {
         </section>
 
         {/* PROMISE VS REALITY */}
-        <section id="reforms">
-          <div className="section-inner wrap">
+        <section id="reforms" className="on-rule">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">Accountability Dashboard</div>
               <h2>Promise vs Reality</h2>
-              <p>Measuring the implementation of major safety reforms. Never labeled "failed" without documented evidence.</p>
+              <p>Measuring the implementation of major safety reforms. Never labeled “failed” without documented evidence.</p>
             </div>
-            <div className="pr-scroll">
+            <div className="pr-scroll" tabIndex={0} role="region" aria-label="Promise vs reality table, scrollable">
               <table className="pr-table">
                 <thead>
                   <tr>
@@ -568,17 +576,14 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {REFORMS.map((r, i) => {
-                    const marks: Record<string, string> = { impl: "✓ Implemented", partial: "⚠ Partially Implemented", fail: "✕ Documented Failure", unknown: "? Insufficient Evidence" };
-                    return (
-                      <tr key={i}>
-                        <td className="rname">{r.name}</td>
-                        <td>{r.promise}</td>
-                        <td>{r.implementation}</td>
-                        <td><span className={`status-mark ${r.status}`}>{marks[r.status]}</span></td>
-                      </tr>
-                    );
-                  })}
+                  {REFORMS.map((r, i) => (
+                    <tr key={i}>
+                      <td className="rname">{r.name}</td>
+                      <td>{r.promise}</td>
+                      <td>{r.implementation}</td>
+                      <td><span className={`status-mark ${r.status}`}>{REFORM_MARKS[r.status]}</span></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -586,8 +591,8 @@ export default function Home() {
         </section>
 
         {/* INSTITUTIONAL ACCOUNTABILITY */}
-        <section id="accountability" className="on-rule">
-          <div className="section-inner wrap">
+        <section id="accountability">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">Systemic Review</div>
               <h2>Institutional Accountability</h2>
@@ -635,41 +640,25 @@ export default function Home() {
         </section>
 
         {/* STATISTICS */}
-        <section id="stats" className="on-rule" ref={statsRef}>
-          <div className="section-inner wrap">
+        <section id="stats" className="on-rule">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">Verified Data</div>
               <h2>Statistics Dashboard</h2>
               <p>Numbers sourced from official government datasets. We do not invent statistics. Where data is opaque, we state it.</p>
             </div>
             <div className="stat-grid">
-              <div className="stat">
-                <div className="num" data-target="31000" data-suffix="+">0</div>
-                <div className="lbl">Reported Crimes Against Women (Annual)</div>
-                <div className="src">SOURCE: NCRB "Crime in India" 2022</div>
-              </div>
-              <div className="stat">
-                <div className="num" data-target="75" data-suffix="%">0</div>
-                <div className="lbl">Cases Pending Trial (Avg. Pendency)</div>
-                <div className="src">SOURCE: National Judicial Data Grid (NJDG)</div>
-              </div>
-              <div className="stat">
-                <div className="num" data-target="20" data-suffix="-30%">0</div>
-                <div className="lbl">Conviction Rate (Specific IPC Sections)</div>
-                <div className="src">SOURCE: NCRB / Parliamentary Committee Reports</div>
-              </div>
-              <div className="stat">
-                <div className="num">N/A</div>
-                <div className="lbl">Real-time Transport CCTV Compliance Audit</div>
-                <div className="src">SOURCE: DATA NOT AVAILABLE (No centralized public audit)</div>
-              </div>
+              <Stat target={31000} suffix="+" label="Reported Crimes Against Women (Annual)" source='SOURCE: NCRB "Crime in India" 2022' />
+              <Stat target={75} suffix="%" label="Cases Pending Trial (Avg. Pendency)" source="SOURCE: National Judicial Data Grid (NJDG)" />
+              <Stat target={20} suffix="-30%" label="Conviction Rate (Specific IPC Sections)" source="SOURCE: NCRB / Parliamentary Committee Reports" />
+              <Stat label="Real-time Transport CCTV Compliance Audit" source="SOURCE: DATA NOT AVAILABLE (No centralized public audit)" />
             </div>
           </div>
         </section>
 
         {/* QUESTIONS */}
         <section id="questions">
-          <div className="section-inner wrap">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">The Unanswered</div>
               <h2>The Questions That Remain</h2>
@@ -686,10 +675,10 @@ export default function Home() {
 
         {/* SOURCES */}
         <section id="sources" className="on-rule">
-          <div className="section-inner wrap">
+          <div className="wrap">
             <div className="section-head">
               <div className="eyebrow">Methodology</div>
-              <h2>Sources & Verification</h2>
+              <h2>Sources &amp; Verification</h2>
               <p>Every claim in this archive is cross-referenced. We distinguish fact from analysis, and allegation from court finding.</p>
             </div>
             <div className="source-list">
@@ -713,7 +702,7 @@ export default function Home() {
             <p>Some cases changed laws.</p>
             <p>Some exposed failures.</p>
             <p>And some questions are still waiting for an answer.</p>
-            <p className="big final-line">REMEMBER.<br />DOCUMENT.<br />QUESTION.<br />DEMAND ACCOUNTABILITY.</p>
+            <p className="final-line">REMEMBER.<br />DOCUMENT.<br />QUESTION.<br />DEMAND ACCOUNTABILITY.</p>
           </div>
         </section>
       </main>
@@ -721,328 +710,280 @@ export default function Home() {
       <footer>
         <div className="brand">AFTER THE <span>SILENCE</span></div>
         <p>An independent public-interest archive. Dedicated to truth, dignity, and systemic accountability.</p>
-        <p style={{ marginTop: 20, fontSize: '0.75rem', color: 'var(--paper-faint)' }}>© 2026 After The Silence Archive. All rights reserved. Content licensed for educational and public-interest use.</p>
+        <p className="copyright">© 2026 After The Silence Archive. All rights reserved. Content licensed for educational and public-interest use.</p>
       </footer>
 
       {/* MODAL */}
       {selectedCase && (
-        <div id="modal-overlay" className="modal-overlay open" aria-hidden="false" role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) setSelectedCase(null); }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={`Case file: ${selectedCase.title}`} onClick={(e) => { if (e.target === e.currentTarget) setSelectedCase(null); }}>
           <div className="modal">
             <div className="modal-top">
               <div className="eyebrow">Case File</div>
-              <button className="modal-close" onClick={() => setSelectedCase(null)} aria-label="Close case file">CLOSE ✕</button>
+              <button className="modal-close" onClick={() => setSelectedCase(null)} aria-label="Close case file" autoFocus>CLOSE ✕</button>
             </div>
             <div className="modal-body">
               <h2>{selectedCase.title}</h2>
               <div className="modal-meta">{selectedCase.year} · {selectedCase.location} · {selectedCase.type}</div>
               <div className="tag-row">
-                {Object.keys(selectedCase.sections).slice(-1)[0] === 'current' && <span className="tag court" title={FACT_STATUS.court}>COURT</span>}
                 <span className="tag verified" title={FACT_STATUS.verified}>VERIFIED</span>
-             3 </div>
+                {isCourtStatus && <span className="tag court" title={FACT_STATUS.court}>COURT</span>}
+                {isOpenStatus && <span className="tag ongoing" title={FACT_STATUS.ongoing}>ONGOING</span>}
+              </div>
               {Object.entries(selectedCase.sections).map(([key, value], idx) => (
                 <div key={key} className="modal-section">
-                  <h4>{String(idx + 1).padStart(2, '0')} — {key.charAt(0).toUpperCase() + key.slice(1)}</h4>
+                  <h4>{String(idx + 1).padStart(2, '0')} — {SECTION_LABELS[key] ?? key}</h4>
                   <p>{value}</p>
                 </div>
               ))}
               <div className="modal-section">
                 <h4>Sources</h4>
-                <p className="modal-sources">Cross-check details for this case against the primary sources listed in the archive-wide Sources section below, and current court records, before treating any detail as final.</p>
+                <p className="modal-sources">Cross-check details for this case against the primary sources listed in the archive-wide Sources section, and current court records, before treating any detail as final.</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <button id="back-top" className="show" aria-label="Back to top" onClick={scrollToTop}>↑</button>
-    </main>
+      {showTop && (
+        <button id="back-top" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>↑</button>
+      )}
+    </div>
   );
 }
 
 /* ============================================================
    STYLESHEET
+   Light mode ab sirf CSS variables swap karta hai — alag overrides ki zaroorat nahi.
    ============================================================ */
 const CSS = `
 :root{
-  --ink: #131110; --ink-soft: #1c1917; --paper: #ece5d8; --paper-dim: #b9b0a0; --paper-faint: #8a8175;
-  --crimson: #8f2f2c; --crimson-br: #b23e39; --gold: #a9873f; --rule: #3c3733; --rule-lite: #2a2623;
-  --ok: #5f7a4f; --warn: #a9873f; --fail: #8f2f2c;
-  --lp-ink: #ece5d8; --lp-paper: #f7f4ec; --lp-paper2: #ece5d8; --lp-rule: #d3cabb;
-  --max: 1180px; --edge: clamp(20px, 5vw, 64px);
-
-  /* Local font fallbacks — no next/font/google required */
-  --sans: Arial, Helvetica, sans-serif;
-  --serif: Georgia, "Times New Roman", serif;
-  --mono: "Courier New", Courier, monospace;
+  --ink:#131110; --ink-soft:#1c1917; --paper:#ece5d8; --paper-dim:#b9b0a0; --paper-faint:#8a8175;
+  --crimson:#8f2f2c; --crimson-br:#c24a44; --gold:#a9873f; --rule:#3c3733; --rule-lite:#2a2623;
+  --ok:#7a9a66; --warn:#c09a45; --fail:#c24a44; --nav-bg:rgba(19,17,16,0.92);
+  --max:1180px; --edge:clamp(20px,5vw,64px);
+  --sans:Arial,Helvetica,sans-serif; --serif:Georgia,"Times New Roman",serif; --mono:"Courier New",Courier,monospace;
+}
+body.light{
+  --ink:#f7f4ec; --ink-soft:#ece5d8; --paper:#1c1917; --paper-dim:#4c4638; --paper-faint:#6b6356;
+  --crimson:#8f2f2c; --crimson-br:#8f2f2c; --gold:#7a5f22; --rule:#cfc5b4; --rule-lite:#ddd4c4;
+  --ok:#3f6a2f; --warn:#7a5f22; --fail:#8f2f2c; --nav-bg:rgba(247,244,236,0.94);
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
 html{ scroll-behavior:smooth; }
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto; }
-  *,*::before,*::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  *,*::before,*::after{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 }
-
-body{ margin:0; background:var(--ink); color:var(--paper); font-family:var(--sans); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
-body.light{ background:var(--lp-paper); color:var(--ink-soft); }
-body.light .rule{ border-color:var(--lp-rule) !important; }
-img{ max-width:100%; display:block; }
+body{ margin:0; background:var(--ink); color:var(--paper); font-family:var(--sans); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
 a{ color:inherit; }
-::selection{ background:var(--crimson); color:var(--paper); }
-.wrap{ max-width:var(--max); margin:0 auto; padding-left:var(--edge); padding-right:var(--edge); }
-.rule{ border:none; border-top:1px solid var(--rule); margin:0; }
-.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-a.skip-link{ position:absolute; left:-999px; top:0; background:var(--crimson); color:#fff; padding:12px 18px; z-index:999; font-family:var(--sans); font-weight:600; }
-a.skip-link:focus{ left:12px; top:12px; }
+::selection{ background:var(--crimson); color:#fff; }
+h1,h2,h3,h4,h5,p,ul{ margin:0; }
+h1,h2,h3,h4{ font-family:var(--serif); font-weight:500; letter-spacing:-0.01em; }
 :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
-h1,h2,h3,h4{ font-family:var(--serif); font-weight:500; margin:0; letter-spacing:-0.01em; }
+
+.wrap{ width:100%; max-width:var(--max); margin:0 auto; padding-left:var(--edge); padding-right:var(--edge); }
+section{ padding:90px 0; scroll-margin-top:72px; }
+.on-rule{ background:var(--ink-soft); }
+a.skip-link{ position:absolute; left:-999px; top:0; background:var(--crimson); color:#fff; padding:12px 18px; z-index:999; font-weight:600; }
+a.skip-link:focus{ left:12px; top:12px; }
+
 .eyebrow{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); display:flex; align-items:center; gap:10px; }
-.eyebrow::before{ content:''; width:22px; height:1px; background:var(--gold); }
+.eyebrow::before{ content:''; flex:none; width:22px; height:1px; background:var(--gold); }
 
 /* NAV */
-header.site-nav{ position:sticky; top:0; z-index:80; background:rgba(19,17,16,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--rule); }
-body.light header.site-nav{ background:rgba(247,244,236,0.92); }
-.nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:16px var(--edge); max-width:var(--max); margin:0 auto; gap:24px; }
-.brand{ font-family:var(--serif); font-size:1.15rem; font-weight:600; letter-spacing:0.01em; white-space:nowrap; }
-.brand span{ color:var(--crimson); }
-nav.links{ display:flex; gap:26px; font-size:0.9rem; }
-nav.links a{ text-decoration:none; color:var(--paper-dim); border-bottom:1px solid transparent; padding-bottom:2px; transition:color .15s, border-color .15s; }
-body.light nav.links a{ color:#5a5348; }
-nav.links a:hover, nav.links a:focus-visible{ color:var(--paper); border-color:var(--crimson); }
-body.light nav.links a:hover{ color:var(--ink-soft); }
-.nav-actions{ display:flex; align-items:center; gap:14px; }
-.btn-explore{ font-family:var(--mono); font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); background:var(--gold); padding:9px 16px; text-decoration:none; white-space:nowrap; border:1px solid var(--gold); }
+.site-nav{ position:sticky; top:0; z-index:80; background:var(--nav-bg); backdrop-filter:blur(8px); border-bottom:1px solid var(--rule); }
+.nav-inner{ display:flex; align-items:center; justify-content:space-between; gap:20px; max-width:var(--max); margin:0 auto; padding:14px var(--edge); }
+.brand{ font-family:var(--serif); font-size:1.15rem; font-weight:600; white-space:nowrap; }
+.brand span{ color:var(--crimson-br); }
+nav.links{ display:flex; gap:22px; font-size:0.9rem; }
+nav.links a{ text-decoration:none; color:var(--paper-dim); border-bottom:1px solid transparent; padding-bottom:2px; white-space:nowrap; }
+nav.links a:hover{ color:var(--paper); border-color:var(--crimson); }
+.nav-actions{ display:flex; align-items:center; gap:12px; }
+.btn-explore{ font-family:var(--mono); font-size:0.75rem; letter-spacing:0.08em; color:var(--ink); background:var(--gold); padding:9px 16px; text-decoration:none; white-space:nowrap; border:1px solid var(--gold); }
 .btn-explore:hover{ background:transparent; color:var(--gold); }
-.mode-toggle, .hamburger{ background:none; border:1px solid var(--rule); color:inherit; font-family:var(--mono); font-size:0.72rem; padding:8px 10px; cursor:pointer; letter-spacing:0.06em; }
-.hamburger{ display:none; }
+.mode-toggle,.hamburger{ background:none; border:1px solid var(--rule); color:inherit; font-family:var(--mono); font-size:0.72rem; padding:8px 10px; cursor:pointer; letter-spacing:0.06em; white-space:nowrap; }
 .mode-toggle:hover{ border-color:var(--gold); color:var(--gold); }
-@media (max-width:920px){ nav.links{ display:none; } .hamburger{ display:inline-block; } .btn-explore{ display:none; } }
-#mobile-menu{ display:none; flex-direction:column; padding:10px var(--edge) 22px; gap:2px; background:var(--ink-soft); border-bottom:1px solid var(--rule); }
-body.light #mobile-menu{ background:var(--lp-paper2); }
-#mobile-menu.open{ display:flex; }
-#mobile-menu a{ text-decoration:none; color:var(--paper-dim); padding:11px 4px; border-top:1px solid var(--rule-lite); font-size:0.95rem; }
-body.light #mobile-menu a{ color:#5a5348; border-top-color:var(--lp-rule); }
+.hamburger{ display:none; }
+.mobile-menu{ display:flex; flex-direction:column; padding:8px var(--edge) 20px; background:var(--ink-soft); border-top:1px solid var(--rule); }
+.mobile-menu a{ text-decoration:none; color:var(--paper-dim); padding:12px 4px; border-top:1px solid var(--rule-lite); }
+.mobile-menu a:first-child{ border-top:none; }
+@media (min-width:1081px){ .mobile-menu{ display:none; } }
+@media (max-width:1240px){ .btn-explore{ display:none; } }
+@media (max-width:1080px){ nav.links{ display:none; } .hamburger{ display:inline-block; } }
 
-/* HERO */
-.hero{ position:relative; padding:96px var(--edge) 70px; max-width:var(--max); margin:0 auto; overflow:hidden; }
-.hero-visual{ position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.4; pointer-events:none; }
-.hero .eyebrow{ margin-bottom:26px; }
-.hero h1{ font-size:clamp(2.2rem, 5.6vw, 4.4rem); line-height:1.06; max-width:16ch; font-weight:500; }
-.hero .lede{ margin-top:28px; max-width:56ch; font-size:1.08rem; color:var(--paper-dim); font-weight:300; }
-body.light .hero .lede{ color:#5a5348; }
-.hero .lede + .lede{ margin-top:14px; }
-.hero-actions{ display:flex; flex-wrap:wrap; gap:14px; margin-top:38px; }
-.btn{ font-family:var(--sans); font-size:0.92rem; font-weight:600; padding:14px 24px; text-decoration:none; border:1px solid var(--paper); cursor:pointer; background:none; color:var(--paper); }
-body.light .btn{ border-color:var(--ink-soft); color:var(--ink-soft); }
+/* HERO — text left, visual right, kuch bhi ek doosre ke upar nahi */
+.hero{ padding:80px 0 60px; }
+.hero-grid{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,0.75fr); gap:56px; align-items:center; }
+.hero .eyebrow{ margin-bottom:24px; }
+.hero h1{ font-size:clamp(2.1rem,5vw,3.9rem); line-height:1.1; max-width:18ch; }
+.lede{ margin-top:26px; max-width:56ch; font-size:1.08rem; color:var(--paper-dim); }
+.lede + .lede{ margin-top:14px; }
+.hero-actions{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; }
+.btn{ font-size:0.92rem; font-weight:600; padding:14px 24px; text-decoration:none; border:1px solid var(--paper); background:none; color:var(--paper); }
 .btn:hover{ background:var(--paper); color:var(--ink); }
-body.light .btn:hover{ background:var(--ink-soft); color:var(--lp-paper); }
 .btn.primary{ background:var(--crimson); border-color:var(--crimson); color:#fff; }
 .btn.primary:hover{ background:transparent; color:var(--crimson-br); }
-.hero-strip{ margin-top:64px; display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
-.hero-strip span{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--paper-faint); padding:16px 22px 16px 0; margin-right:22px; border-right:1px solid var(--rule); }
-.hero-strip span:last-child{ border-right:none; }
+.hero-strip{ margin-top:52px; display:flex; flex-wrap:wrap; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+.hero-strip span{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.1em; color:var(--paper-faint); padding:14px 22px 14px 0; margin-right:22px; border-right:1px solid var(--rule); }
+.hero-strip span:last-child{ border-right:none; margin-right:0; }
+.hero-visual{ display:flex; flex-direction:column; gap:20px; }
+.hero-visual svg{ width:100%; height:auto; display:block; border:1px solid var(--rule); }
+.hero-quote{ font-family:var(--serif); font-style:italic; color:var(--paper-dim); font-size:1.02rem; }
+@media (max-width:980px){
+  .hero-grid{ grid-template-columns:1fr; gap:44px; }
+  .hero-visual{ max-width:420px; }
+}
 
 /* WARNING */
-.warning{ max-width:var(--max); margin:0 auto 48px; padding:0 var(--edge); }
+.warning{ padding-bottom:48px; }
 .warning .box{ border:1px solid var(--rule); border-left:3px solid var(--crimson); padding:20px 24px; font-size:0.92rem; color:var(--paper-dim); max-width:80ch; }
-body.light .warning .box{ color:#5a5348; }
-.warning strong{ color:var(--paper); font-weight:600; }
-body.light .warning strong{ color:var(--ink-soft); }
+.warning strong{ color:var(--paper); }
 
-/* SECTIONS */
-section{ padding:90px var(--edge); }
-.section-inner{ max-width:var(--max); margin:0 auto; }
-.section-head{ margin-bottom:48px; max-width:70ch; }
+.section-head{ margin-bottom:44px; max-width:70ch; }
 .section-head h2{ font-size:clamp(1.7rem,3.4vw,2.6rem); margin-top:16px; }
-.section-head p{ margin-top:16px; color:var(--paper-dim); font-size:1rem; max-width:60ch; }
-body.light .section-head p{ color:#5a5348; }
-.on-rule{ background:var(--ink-soft); }
-body.light .on-rule{ background:var(--lp-paper2); }
+.section-head p{ margin-top:16px; color:var(--paper-dim); max-width:60ch; }
 
 /* CENTERPIECES */
-.cp-head{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:24px; align-items:flex-end; margin-bottom:34px; }
-.cp-kicker{ font-family:var(--mono); font-size:0.75rem; color:var(--gold); letter-spacing:0.1em; }
-.cp-head h3{ font-size:clamp(2rem,4.4vw,3.4rem); margin-top:10px; }
-.cp-years{ font-family:var(--mono); font-size:0.85rem; color:var(--paper-faint); text-align:right; white-space:nowrap; }
-.cp-statement{ font-family:var(--serif); font-size:clamp(1.3rem,2.4vw,1.9rem); line-height:1.4; font-weight:400; max-width:34ch; padding:6px 0 6px 26px; border-left:2px solid var(--crimson); margin-bottom:52px; color:var(--paper); }
-body.light .cp-statement{ color:var(--ink-soft); }
-.cp-block{ display:grid; grid-template-columns:220px 1fr; gap:44px; padding:38px 0; border-top:1px solid var(--rule); }
-.cp-block:first-of-type{ border-top:none; }
+.cp-head{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px 24px; align-items:flex-end; margin-bottom:34px; }
+.cp-head h3{ font-size:clamp(1.9rem,4.4vw,3.2rem); margin-top:10px; line-height:1.1; overflow-wrap:anywhere; }
+.cp-years{ font-family:var(--mono); font-size:0.85rem; color:var(--paper-faint); }
+.cp-statement{ font-family:var(--serif); font-size:clamp(1.25rem,2.4vw,1.9rem); line-height:1.4; max-width:34ch; padding:6px 0 6px 24px; border-left:2px solid var(--crimson); margin-bottom:44px; }
+.cp-block{ display:grid; grid-template-columns:220px minmax(0,1fr); gap:44px; padding:36px 0; border-top:1px solid var(--rule); }
+.cp-statement + .cp-block{ border-top:none; padding-top:0; }
 .cp-block h4{ font-size:1.2rem; }
 .cp-block-num{ font-family:var(--mono); font-size:0.75rem; color:var(--paper-faint); display:block; margin-bottom:8px; }
-.cp-block-body p{ max-width:66ch; color:var(--paper-dim); margin:0 0 14px; }
-body.light .cp-block-body p{ color:#4c4638; }
+.cp-block-body p{ max-width:66ch; color:var(--paper-dim); margin-bottom:14px; }
 .cp-block-body p:last-child{ margin-bottom:0; }
+.cp-block-body strong{ color:var(--paper); }
 @media (max-width:760px){ .cp-block{ grid-template-columns:1fr; gap:12px; } }
 
 .tag-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
-.tag{ font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase; padding:5px 10px; border:1px solid var(--rule); color:var(--paper-dim); white-space:nowrap; cursor:help; }
-body.light .tag{ color:#5a5348; }
+.tag{ font-family:var(--mono); font-size:0.68rem; letter-spacing:0.06em; padding:5px 10px; border:1px solid var(--rule); color:var(--paper-dim); white-space:nowrap; cursor:help; }
 .tag.verified{ border-color:var(--ok); color:var(--ok); }
 .tag.court{ border-color:var(--gold); color:var(--gold); }
-.tag.disputed, .tag.alleged{ border-color:var(--crimson); color:var(--crimson-br); }
-.tag.ongoing, .tag.reported{ border-color:var(--paper-faint); color:var(--paper-faint); }
+.tag.disputed,.tag.alleged{ border-color:var(--crimson-br); color:var(--crimson-br); }
+.tag.ongoing,.tag.reported{ border-color:var(--paper-faint); color:var(--paper-faint); }
 
-.dispute-box{ border:1px solid var(--rule); background:var(--ink-soft); padding:22px 24px; margin:20px 0; max-width:70ch; }
-body.light .dispute-box{ background:var(--lp-paper2); }
-.dispute-box .lbl{ font-family:var(--mono); font-size:0.7rem; letter-spacing:0.1em; color:var(--crimson-br); margin-bottom:10px; }
-.dispute-box p{ margin:0 0 10px; color:var(--paper-dim); }
-body.light .dispute-box p{ color:#4c4638; }
-.dispute-box p:last-child{ margin:0; }
-
-.pull-box{ font-family:var(--serif); font-size:1.3rem; font-style:italic; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:26px 0; max-width:60ch; margin:30px 0; }
-.chip-flow{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:24px 0; }
-.chip-flow .chip{ font-family:var(--mono); font-size:0.75rem; letter-spacing:0.05em; padding:9px 14px; border:1px solid var(--rule); color:var(--paper-dim); }
-body.light .chip-flow .chip{ color:#4c4638; }
-.chip-flow .arrow{ color:var(--paper-faint); }
-.legacy-words{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
-.legacy-words span{ font-family:var(--mono); font-size:0.78rem; padding:8px 14px; border:1px solid var(--gold); color:var(--gold); letter-spacing:0.04em; }
-
-.ba-grid{ display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:28px; }
+.ba-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:8px; }
 @media (max-width:720px){ .ba-grid{ grid-template-columns:1fr; } }
 .ba-col{ border:1px solid var(--rule); padding:24px; }
-.ba-col h5{ font-family:var(--mono); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--paper-faint); margin-bottom:16px; }
-.ba-col ul{ margin:0; padding:0; list-style:none; }
+.ba-col h5{ font-family:var(--mono); font-size:0.78rem; letter-spacing:0.08em; color:var(--paper-faint); margin-bottom:14px; }
+.ba-col ul{ padding:0; list-style:none; }
 .ba-col li{ padding:9px 0; border-top:1px solid var(--rule-lite); color:var(--paper-dim); font-size:0.94rem; }
-body.light .ba-col li{ color:#4c4638; }
 .ba-col li:first-child{ border-top:none; }
-.change-grid{ display:flex; flex-wrap:wrap; gap:10px; margin:26px 0; }
+.change-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
 .change-grid span{ font-family:var(--mono); font-size:0.72rem; letter-spacing:0.06em; padding:9px 14px; border:1px solid var(--rule); }
 
-.status-ribbon{ display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--crimson-br); border:1px solid var(--crimson); padding:8px 14px; margin-bottom:22px; }
+.status-ribbon{ display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; color:var(--crimson-br); border:1px solid var(--crimson-br); padding:8px 14px; margin-bottom:24px; }
 .status-ribbon::before{ content:''; width:7px; height:7px; background:var(--crimson-br); border-radius:50%; animation:pulse 1.8s infinite; }
 @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-@media (prefers-reduced-motion:reduce){ .status-ribbon::before{ animation:none; } }
 
-/* ARCHIVE GRID */
-.archive-controls{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:38px; }
-.search-box{ flex:1 1 260px; display:flex; align-items:center; border:1px solid var(--rule); padding:0 14px; }
-.search-box input{ flex:1; background:none; border:none; color:inherit; font-family:var(--sans); font-size:0.95rem; padding:13px 8px; outline:none; }
+/* ARCHIVE */
+.archive-controls{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:32px; }
+.search-box{ flex:1 1 260px; border:1px solid var(--rule); padding:0 14px; }
+.search-box input{ width:100%; background:none; border:none; color:inherit; font-family:var(--sans); font-size:0.95rem; padding:13px 0; outline:none; }
+.search-box:focus-within{ border-color:var(--gold); }
 .search-box input::placeholder{ color:var(--paper-faint); }
-.filter-select{ background:var(--ink); color:var(--paper); border:1px solid var(--rule); font-family:var(--sans); font-size:0.88rem; padding:12px 10px; }
-body.light .filter-select{ background:var(--lp-paper); color:var(--ink-soft); }
+.filter-select{ background:var(--ink); color:var(--paper); border:1px solid var(--rule); font-family:var(--sans); font-size:0.88rem; padding:12px 10px; max-width:100%; }
 .filter-count{ font-family:var(--mono); font-size:0.75rem; color:var(--paper-faint); margin-left:auto; }
-.case-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); }
-.case-card{ background:var(--ink); padding:26px 24px; cursor:pointer; text-align:left; border:none; color:inherit; font-family:inherit; display:flex; flex-direction:column; gap:12px; min-height:190px; }
-body.light .case-card{ background:var(--lp-paper); }
+.case-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); }
+.case-card{ background:var(--ink); padding:26px 24px; cursor:pointer; text-align:left; border:none; color:inherit; font-family:inherit; font-size:inherit; display:flex; flex-direction:column; gap:12px; min-height:200px; }
 .case-card:hover{ background:var(--ink-soft); }
-body.light .case-card:hover{ background:var(--lp-paper2); }
 .case-card .year{ font-family:var(--mono); font-size:0.75rem; color:var(--gold); }
-.case-card h3{ font-family:var(--serif); font-size:1.22rem; font-weight:500; line-height:1.3; }
-.case-card .loc{ font-size:0.84rem; color:var(--paper-faint); }
+.case-card .ctitle{ font-family:var(--serif); font-size:1.22rem; line-height:1.3; }
 .case-card .desc{ font-size:0.87rem; color:var(--paper-dim); flex:1; }
-body.light .case-card .desc{ color:#4c4638; }
-.case-card .foot{ display:flex; justify-content:space-between; align-items:center; margin-top:auto; }
+.case-card .foot{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-top:auto; }
+.case-card .loc{ font-size:0.82rem; color:var(--paper-faint); }
 .status-pill{ font-family:var(--mono); font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; padding:4px 9px; border:1px solid var(--rule); }
 .status-pill.convicted{ border-color:var(--ok); color:var(--ok); }
-.status-pill.ongoing, .status-pill.investigation, .status-pill.trial, .status-pill.appeal{ border-color:var(--gold); color:var(--gold); }
+.status-pill.ongoing,.status-pill.investigation,.status-pill.trial,.status-pill.appeal{ border-color:var(--gold); color:var(--gold); }
 .status-pill.acquitted{ border-color:var(--paper-faint); color:var(--paper-faint); }
-.status-pill.landmark{ border-color:var(--crimson); color:var(--crimson-br); }
+.status-pill.landmark{ border-color:var(--crimson-br); color:var(--crimson-br); }
 .empty-state{ padding:60px 20px; text-align:center; color:var(--paper-faint); font-family:var(--mono); font-size:0.85rem; grid-column:1/-1; background:var(--ink); }
-body.light .empty-state{ background:var(--lp-paper); }
 
 /* MODAL */
-.modal-overlay{ position:fixed; inset:0; background:rgba(8,7,6,0.86); z-index:200; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 16px; }
-.modal-overlay.open{ display:flex; }
-.modal{ background:var(--ink); border:1px solid var(--rule); max-width:840px; width:100%; margin:auto; padding:0 0 60px; }
-body.light .modal{ background:var(--lp-paper); }
-.modal-top{ display:flex; justify-content:space-between; align-items:flex-start; padding:26px 34px; border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--ink); z-index:2; }
-body.light .modal-top{ background:var(--lp-paper); }
-.modal-close{ background:none; border:1px solid var(--rule); color:inherit; font-family:var(--mono); font-size:0.85rem; padding:8px 12px; cursor:pointer; }
-.modal-close:hover{ border-color:var(--crimson); color:var(--crimson-br); }
-.modal-body{ padding:34px; }
-.modal-body h2{ font-size:clamp(1.6rem,3.4vw,2.2rem); margin-bottom:6px; }
-.modal-meta{ font-family:var(--mono); font-size:0.78rem; color:var(--paper-faint); margin-bottom:22px; }
-.modal-section{ border-top:1px solid var(--rule); padding:24px 0; }
-.modal-section:first-of-type{ border-top:none; }
-.modal-section h4{ font-size:0.95rem; font-family:var(--mono); letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
-.modal-section p{ color:var(--paper-dim); margin:0; font-size:0.95rem; }
-body.light .modal-section p{ color:#4c4638; }
-.modal-sources{ font-size:0.85rem; color:var(--paper-faint); }
+.modal-overlay{ position:fixed; inset:0; background:rgba(8,7,6,0.86); z-index:200; display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:32px 16px; }
+.modal{ background:var(--ink); color:var(--paper); border:1px solid var(--rule); max-width:840px; width:100%; margin:auto; padding-bottom:48px; }
+.modal-top{ display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--ink); z-index:2; }
+.modal-close{ background:none; border:1px solid var(--rule); color:inherit; font-family:var(--mono); font-size:0.8rem; padding:8px 12px; cursor:pointer; }
+.modal-close:hover{ border-color:var(--crimson-br); color:var(--crimson-br); }
+.modal-body{ padding:30px 28px 0; }
+.modal-body h2{ font-size:clamp(1.6rem,3.4vw,2.2rem); margin-bottom:8px; }
+.modal-meta{ font-family:var(--mono); font-size:0.78rem; color:var(--paper-faint); }
+.modal-section{ border-top:1px solid var(--rule); padding:22px 0; }
+.modal-section h4{ font-family:var(--mono); font-size:0.85rem; letter-spacing:0.05em; color:var(--gold); margin-bottom:10px; }
+.modal-section p{ color:var(--paper-dim); font-size:0.95rem; }
+.modal-sources{ font-size:0.85rem !important; color:var(--paper-faint) !important; }
 
 /* TIMELINE */
-.timeline{ position:relative; margin-top:20px; padding-left:26px; border-left:1px solid var(--rule); }
-.tl-node{ position:relative; padding:0 0 46px 30px; }
-.tl-node:last-child{ padding-bottom:4px; }
-.tl-node::before{ content:''; position:absolute; left:-42px; top:2px; width:11px; height:11px; border-radius:50%; background:var(--ink); border:2px solid var(--crimson); }
-body.light .tl-node::before{ background:var(--lp-paper); }
+.timeline{ margin-left:6px; padding-left:34px; border-left:1px solid var(--rule); }
+.tl-node{ position:relative; padding-bottom:44px; }
+.tl-node:last-child{ padding-bottom:0; }
+.tl-node::before{ content:''; position:absolute; left:-40px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--ink-soft); border:2px solid var(--crimson-br); }
 .tl-year{ font-family:var(--mono); color:var(--gold); font-size:0.85rem; }
 .tl-node h4{ font-size:1.3rem; margin-top:6px; }
-.tl-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:16px; }
+.tl-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-top:16px; }
 @media (max-width:760px){ .tl-grid{ grid-template-columns:1fr; } }
-.tl-grid div span{ display:block; font-family:var(--mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--paper-faint); margin-bottom:6px; }
-.tl-grid div p{ margin:0; font-size:0.9rem; color:var(--paper-dim); }
-body.light .tl-grid div p{ color:#4c4638; }
+.tl-grid span{ display:block; font-family:var(--mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--paper-faint); margin-bottom:6px; }
+.tl-grid p{ font-size:0.9rem; color:var(--paper-dim); }
 
 /* REFORMS TABLE */
-.pr-table{ width:100%; border-collapse:collapse; margin-top:10px; }
+.pr-scroll{ overflow-x:auto; border:1px solid var(--rule); }
+.pr-table{ width:100%; min-width:760px; border-collapse:collapse; }
 .pr-table th{ text-align:left; font-family:var(--mono); font-size:0.7rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--paper-faint); padding:12px 14px; border-bottom:1px solid var(--rule); }
 .pr-table td{ padding:16px 14px; border-bottom:1px solid var(--rule-lite); font-size:0.9rem; vertical-align:top; color:var(--paper-dim); }
-body.light .pr-table td{ color:#4c4638; border-bottom-color:var(--lp-rule); }
-.pr-table tr:hover td{ background:var(--ink-soft); }
-body.light .pr-table tr:hover td{ background:var(--lp-paper2); }
-.status-mark{ font-family:var(--mono); font-weight:600; font-size:0.95rem; }
+.pr-table tr:last-child td{ border-bottom:none; }
+.pr-table tr:hover td{ background:var(--ink); }
+.pr-table .rname{ font-family:var(--serif); font-size:1.02rem; color:var(--paper); }
+.status-mark{ font-family:var(--mono); font-weight:700; font-size:0.85rem; white-space:nowrap; }
 .status-mark.impl{ color:var(--ok); }
 .status-mark.partial{ color:var(--warn); }
 .status-mark.fail{ color:var(--fail); }
 .status-mark.unknown{ color:var(--paper-faint); }
-.pr-table .rname{ font-family:var(--serif); font-size:1.02rem; color:var(--paper); }
-body.light .pr-table .rname{ color:var(--ink-soft); }
-.pr-scroll{ overflow-x:auto; }
 
-/* PANELS */
-.panel-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-top:10px; }
-.panel{ background:var(--ink); padding:26px 22px; }
-body.light .panel{ background:var(--lp-paper); }
+/* PANELS & STATS */
+.panel-grid,.stat-grid{ display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule); }
+.panel-grid{ grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); }
+.stat-grid{ grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); }
+.panel,.stat{ background:var(--ink); padding:26px 22px; }
+.on-rule .panel,.on-rule .stat{ background:var(--ink-soft); }
 .panel h4{ font-size:1.1rem; margin-bottom:14px; }
-.panel ul{ margin:0; padding:0; list-style:none; }
-.panel li{ font-size:0.87rem; color:var(--paper-dim); padding:7px 0; border-top:1px solid var(--rule-lite); }
-body.light .panel li{ color:#4c4638; }
+.panel ul{ padding:0; list-style:none; }
+.panel li{ font-size:0.87rem; color:var(--paper-dim); padding:8px 0; border-top:1px solid var(--rule-lite); }
 .panel li:first-child{ border-top:none; }
-
-/* STATS */
-.stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-top:10px; }
-.stat{ background:var(--ink); padding:28px 24px; }
-body.light .stat{ background:var(--lp-paper); }
-.stat .num{ font-family:var(--serif); font-size:2.6rem; color:var(--paper); }
-body.light .stat .num{ color:var(--ink-soft); }
-.stat .lbl{ font-size:0.86rem; color:var(--paper-dim); margin-top:6px; }
-body.light .stat .lbl{ color:#4c4638; }
+.stat .num{ font-family:var(--serif); font-size:clamp(2rem,3.4vw,2.6rem); line-height:1.15; overflow-wrap:anywhere; }
+.stat .lbl{ font-size:0.86rem; color:var(--paper-dim); margin-top:8px; }
 .stat .src{ font-family:var(--mono); font-size:0.68rem; color:var(--paper-faint); margin-top:14px; }
 
-/* QUESTIONS */
-.q-list{ margin-top:10px; }
-.q-item{ border-top:1px solid var(--rule); padding:26px 0; font-family:var(--serif); font-size:clamp(1.15rem,2.4vw,1.55rem); max-width:56ch; }
+/* QUESTIONS & SOURCES */
+.q-item{ border-top:1px solid var(--rule); padding:24px 0; font-family:var(--serif); font-size:clamp(1.15rem,2.4vw,1.55rem); max-width:56ch; }
 .q-item:last-child{ border-bottom:1px solid var(--rule); }
-
-/* SOURCES */
-.source-list{ margin-top:10px; }
-.source-item{ border-top:1px solid var(--rule); padding:18px 0; display:grid; grid-template-columns:1fr auto; gap:10px; align-items:baseline; }
+.source-item{ border-top:1px solid var(--rule); padding:18px 0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px 24px; align-items:baseline; }
 .source-item:last-child{ border-bottom:1px solid var(--rule); }
 .source-item .t{ font-size:0.95rem; }
-.source-item .o{ font-family:var(--mono); font-size:0.72rem; color:var(--paper-faint); }
+.source-item .o{ font-family:var(--mono); font-size:0.72rem; color:var(--paper-faint); text-align:right; }
+@media (max-width:720px){ .source-item{ grid-template-columns:1fr; } .source-item .o{ text-align:left; } }
 
-/* FINALE & FOOTER */
-.finale{ background:#0a0908; text-align:center; padding:130px var(--edge); }
-.finale p{ font-family:var(--serif); font-size:clamp(1.4rem,3.6vw,2.4rem); margin:14px 0; color:var(--paper); }
-.finale .big{ font-size:clamp(1.8rem,4.6vw,3.2rem); margin-top:40px; letter-spacing:0.01em; }
-.finale .final-line{ margin-top:70px; font-family:var(--mono); font-size:0.9rem; letter-spacing:0.14em; color:var(--gold); line-height:2.2; }
-footer{ background:#0a0908; border-top:1px solid var(--rule); padding:50px var(--edge) 40px; text-align:center; }
+/* FINALE & FOOTER — hamesha dark rehte hain */
+.finale{ background:#0a0908; text-align:center; padding:120px 0; }
+.finale p{ font-family:var(--serif); font-size:clamp(1.3rem,3.6vw,2.2rem); margin:12px 0; color:#ece5d8; }
+.finale .final-line{ margin-top:64px; font-family:var(--mono); font-size:clamp(0.85rem,2vw,1rem); letter-spacing:0.14em; color:#c9a24f; line-height:2.2; }
+footer{ background:#0a0908; border-top:1px solid #3c3733; padding:48px var(--edge) 40px; text-align:center; color:#ece5d8; }
 footer .brand{ font-size:1.3rem; }
-footer p{ color:var(--paper-faint); font-size:0.85rem; margin-top:10px; }
+footer .brand span{ color:#c24a44; }
+footer p{ color:#8a8175; font-size:0.85rem; margin-top:10px; }
+footer p.copyright{ margin-top:20px; font-size:0.75rem; }
 
 /* BACK TO TOP */
-#back-top{ position:fixed; bottom:24px; right:24px; z-index:60; background:var(--ink-soft); border:1px solid var(--rule); color:var(--paper); width:44px; height:44px; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:1.1rem; }
-#back-top.show{ display:flex; }
+#back-top{ position:fixed; bottom:20px; right:20px; z-index:60; background:var(--ink-soft); border:1px solid var(--rule); color:var(--paper); width:44px; height:44px; cursor:pointer; font-size:1.1rem; }
 #back-top:hover{ border-color:var(--gold); color:var(--gold); }
 
-/* REVEAL */
-.reveal{ opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; }
-.reveal.in{ opacity:1; transform:none; }
-@media (prefers-reduced-motion:reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
-
 @media (max-width:640px){
-  section{ padding:64px var(--edge); }
-  .cp-head{ flex-direction:column; align-items:flex-start; }
+  section{ padding:60px 0; }
+  .hero{ padding:52px 0 40px; }
+  .filter-count{ margin-left:0; width:100%; }
+  .filter-select{ flex:1 1 100%; }
+  .modal-top,.modal-body{ padding-left:20px; padding-right:20px; }
 }
 `;
