@@ -271,6 +271,29 @@ const CASES: CaseData[] = [
     }
   },
 
+    {
+    id: "priyanka-reddy-2019",
+    title: "Priyanka Reddy Case",
+    year: 2019,
+    era: "2015-2019",
+    location: "Shamshabad, Telangana",
+    type: "Sexual violence and murder",
+    status: "historical",
+    desc: "The murder of a young veterinary doctor triggered enormous public anger over women's safety, policing and the fear of travelling alone at night.",
+    sections: {
+      what: "In November 2019, a 26-year-old veterinary doctor was killed near Hyderabad after being attacked by a group of men.",
+      who: "She was a young veterinary doctor whose death generated an extraordinary public response across India.",
+      investigation: "Police arrested four suspects shortly after the incident.",
+      police: "The case received intense scrutiny over questions surrounding the response to the initial missing-person report and the events leading up to the discovery of her body.",
+      court: "The four accused were killed in a police encounter in December 2019. The circumstances of the encounter subsequently became the subject of a separate judicial inquiry.",
+      public: "Large crowds gathered to protest the killing and demand greater safety for women.",
+      government: "The Telangana government faced pressure over women's safety and the policing of crimes against women.",
+      changed: "The case intensified national discussion around emergency response, public transport, policing and women's safety after dark.",
+      notchanged: "The encounter also created a second question: can justice be considered complete when suspects die before a criminal trial establishes their guilt?",
+      current: "The police encounter itself was examined through a judicial commission, making the case a complex example of both sexual violence and the limits of extrajudicial responses."
+    }
+  },
+
   {
     id: "hathras-2020",
     title: "Hathras Case",
@@ -340,28 +363,6 @@ const CASES: CaseData[] = [
     }
   },
 
-  {
-    id: "priyanka-reddy-2019",
-    title: "Priyanka Reddy Case",
-    year: 2019,
-    era: "2015-2019",
-    location: "Shamshabad, Telangana",
-    type: "Sexual violence and murder",
-    status: "historical",
-    desc: "The murder of a young veterinary doctor triggered enormous public anger over women's safety, policing and the fear of travelling alone at night.",
-    sections: {
-      what: "In November 2019, a 26-year-old veterinary doctor was killed near Hyderabad after being attacked by a group of men.",
-      who: "She was a young veterinary doctor whose death generated an extraordinary public response across India.",
-      investigation: "Police arrested four suspects shortly after the incident.",
-      police: "The case received intense scrutiny over questions surrounding the response to the initial missing-person report and the events leading up to the discovery of her body.",
-      court: "The four accused were killed in a police encounter in December 2019. The circumstances of the encounter subsequently became the subject of a separate judicial inquiry.",
-      public: "Large crowds gathered to protest the killing and demand greater safety for women.",
-      government: "The Telangana government faced pressure over women's safety and the policing of crimes against women.",
-      changed: "The case intensified national discussion around emergency response, public transport, policing and women's safety after dark.",
-      notchanged: "The encounter also created a second question: can justice be considered complete when suspects die before a criminal trial establishes their guilt?",
-      current: "The police encounter itself was examined through a judicial commission, making the case a complex example of both sexual violence and the limits of extrajudicial responses."
-    }
-  },
 
   {
   id: "delhi-sleeper-bus-2026",
