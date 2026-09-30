@@ -1150,7 +1150,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* ───────── VISIBLE FILM GRAIN ───────── */
+/* ───────── ADAPTIVE FILM GRAIN ───────── */
 
 body::after {
   content: "";
@@ -1159,20 +1159,21 @@ body::after {
   z-index: 9998;
   pointer-events: none;
 
-  opacity: 0.18;
+  color: #000;
+  opacity: 0.045;
 
-  background:
+  background-image:
     repeating-radial-gradient(
       circle at 0 0,
-      rgba(255, 255, 255, 0.08) 0,
-      rgba(255, 255, 255, 0.08) 1px,
+      currentColor 0px,
+      currentColor 1px,
       transparent 1px,
       transparent 3px
     );
 
   background-size: 4px 4px;
 
-  mix-blend-mode: soft-light;
+  mix-blend-mode: multiply;
 
   animation: grain-shift 0.25s steps(2) infinite;
 }
@@ -1353,7 +1354,7 @@ body::before {
     );
 }
 
-/* ───────── FILM GRAIN ───────── */
+/* ───────── ADAPTIVE FILM GRAIN ───────── */
 
 body::after {
   content: "";
