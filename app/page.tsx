@@ -14,7 +14,7 @@ const FACT_STATUS: Record<string, string> = {
   ongoing: "ONGOING — the legal or investigative process is still underway."
 };
 
-type CaseStatus = 'investigation' | 'trial' | 'convicted' | 'acquitted' | 'appeal' | 'ongoing' | 'landmark';
+type CaseStatus = 'investigation' | 'trial' | 'convicted' | 'acquitted' | 'appeal' | 'ongoing' | 'landmark' | 'historical';
 
 interface CaseData {
   id: string;
@@ -40,108 +40,326 @@ const SECTION_LABELS: Record<string, string> = {
   notchanged: "What has not changed",
   current: "Current status",
 };
-
 const CASES: CaseData[] = [
   {
-    id: "mathura-1972", title: "Mathura Custodial Rape Case", year: 1972, era: "1970s",
-    location: "Chandrapur, Maharashtra", type: "Custodial violence", status: "landmark",
-    desc: "A young woman was allegedly raped by policemen inside a police station; the Supreme Court's 1979 acquittal of the accused ignited a nationwide protest movement.",
+    id: "mathura-1972",
+    title: "Mathura Custodial Rape Case",
+    year: 1972,
+    era: "1970s",
+    location: "Chandrapur, Maharashtra",
+    type: "Custodial violence",
+    status: "landmark",
+    desc: "A young Adivasi woman was allegedly raped by policemen inside a police station. The Supreme Court's later acquittal became a landmark moment in India's history of sexual-violence cases.",
     sections: {
-      what: "In 1972, a young woman named Mathura was allegedly raped by two policemen on the premises of a police station in Maharashtra, where she and her family had gone in connection with a complaint filed by her brother.",
-      who: "Mathura, reported to be a young Adivasi woman in her teens at the time.",
-      investigation: "A trial court initially acquitted the accused; the Bombay High Court convicted them on appeal.",
-      police: "The alleged assault took place inside a police station, raising questions about custodial safety that shaped the case's later significance.",
-      court: "In 1979, the Supreme Court (Tuka Ram and Anr. v. State of Maharashtra) set aside the High Court conviction and acquitted the accused, reasoning that the absence of visible injury suggested consent — a judgment that was widely criticised by lawyers and women's rights groups.",
-      public: "Four law professors published an open letter criticising the judgment, and the case catalysed the country's modern anti-rape movement.",
-      government: "Public pressure led to legislative review of rape law by Parliament.",
-      changed: "The Criminal Law (Amendment) Act, 1983 introduced provisions on custodial rape, shifted the burden of proof in some circumstances, and made it an offence to disclose a survivor's identity.",
-      notchanged: "Campaigners have long argued that convictions in custodial-violence cases remained rare relative to reported incidents in the decades that followed.",
-      current: "Referenced as a foundational case in Indian sexual-violence jurisprudence.",
+      what: "In 1972, Mathura, a young Adivasi woman, was allegedly raped by two policemen inside a police station in Maharashtra, where she and her family had gone in connection with a complaint involving her brother.",
+      who: "Mathura was reportedly a teenager at the time. Her case later became one of the most important examples of the difficulties faced by women seeking justice after custodial sexual violence.",
+      investigation: "A trial court initially acquitted the accused. The Bombay High Court later convicted them on appeal.",
+      police: "The alleged assault taking place inside a police station became central to the case's significance: a place expected to provide protection had itself become the setting of the alleged crime.",
+      court: "In 1979, the Supreme Court in Tuka Ram and Anr. v. State of Maharashtra acquitted the accused. The reasoning surrounding consent and the absence of visible injuries was widely criticised by lawyers and women's rights groups.",
+      public: "Four law professors published an open letter criticising the judgment. The case became a major catalyst for India's modern anti-rape movement.",
+      government: "Public pressure eventually contributed to Parliament reviewing the law concerning rape and custodial sexual violence.",
+      changed: "The Criminal Law (Amendment) Act, 1983 introduced specific provisions concerning custodial rape and changed important evidentiary rules in specified circumstances.",
+      notchanged: "The case left a lasting question about how much protection a person can realistically expect when the institution responsible for protection is itself accused of abuse.",
+      current: "Mathura remains one of the foundational cases in India's modern history of sexual-violence jurisprudence."
     }
   },
+
   {
-    id: "bhanwari-devi-1992", title: "Bhanwari Devi Case", year: 1992, era: "1990s",
-    location: "Bhateri, Rajasthan", type: "Sexual violence", status: "landmark",
-    desc: "A government saathin worker was allegedly gang-raped after attempting to stop a child marriage; the case led directly to the 1997 Vishaka guidelines on workplace sexual harassment.",
+    id: "rameeza-bee-1978",
+    title: "Rameeza Bee Case",
+    year: 1978,
+    era: "1970s",
+    location: "Hyderabad, Telangana",
+    type: "Custodial violence",
+    status: "landmark",
+    desc: "The alleged custodial rape of Rameeza Bee and the death of her husband triggered major protests in Hyderabad and brought police violence into national discussion.",
     sections: {
-      what: "Bhanwari Devi, a government-employed saathin (village-level social worker) in Rajasthan, was allegedly gang-raped in 1992, reportedly in reprisal for her work opposing a child marriage in her village as part of a state programme.",
-      who: "Bhanwari Devi, a survivor who continued to speak publicly about the case in the years that followed.",
-      investigation: "The case went to trial in a Rajasthan sessions court.",
-      police: "Accounts describe difficulties Bhanwari Devi faced in the investigative process.",
-      court: "In 1995, a trial court acquitted the accused; the acquittal drew criticism from women's organisations.",
-      public: "Women's rights groups filed a public interest litigation (Vishaka and Ors. v. State of Rajasthan) before the Supreme Court, arguing that the state had failed to protect a working woman.",
-      government: "The Supreme Court, rather than the government, ultimately issued the response — see the Vishaka Guidelines entry.",
-      changed: "The case is directly credited with prompting the 1997 Vishaka Guidelines, India's first binding framework on workplace sexual harassment, later codified in the POSH Act, 2013.",
-      notchanged: "The criminal case itself did not result in convictions of the accused.",
-      current: "Referenced as the origin case of India's workplace sexual-harassment law.",
+      what: "In 1978, Rameeza Bee and her husband were taken into police custody in Hyderabad. Rameeza Bee alleged that she was raped while in custody, while her husband died after being detained.",
+      who: "Rameeza Bee, a young woman whose case became associated with allegations of custodial sexual violence and police brutality.",
+      investigation: "The incident generated an official investigation and intense public pressure.",
+      police: "The allegations against police officers created widespread anger because the alleged violence occurred while the couple were under state custody.",
+      court: "The case generated legal proceedings and became part of a wider debate over custodial violence and police accountability.",
+      public: "Large protests took place in Hyderabad, with demonstrators demanding accountability and changes to police practices.",
+      government: "The scale of the protests forced authorities to publicly confront allegations of police abuse.",
+      changed: "The case became an important historical example of public mobilisation against custodial violence in India.",
+      notchanged: "Decades later, allegations of custodial violence continue to appear in Indian human-rights discussions.",
+      current: "Remembered as an important early case in India's history of protests against custodial abuse."
     }
   },
+
   {
-    id: "nirbhaya-2012", title: "Nirbhaya Case", year: 2012, era: "2010-2014",
-    location: "New Delhi", type: "Sexual violence", status: "convicted",
-    desc: "A centrepiece of this archive. A brutal gang rape on a moving bus triggered unprecedented nationwide protests demanding systemic change.",
+    id: "phoolan-devi-1980",
+    title: "Phoolan Devi and the Behmai Massacre",
+    year: 1980,
+    era: "1980s",
+    location: "Behmai, Uttar Pradesh",
+    type: "Sexual violence and mass killing",
+    status: "historical",
+    desc: "Phoolan Devi's life became one of India's most complex stories of caste, sexual violence, revenge, outlawry and politics.",
     sections: {
-      what: "A 23-year-old physiotherapy student was subjected to brutal sexual assault and violence aboard a moving private bus in Delhi. She succumbed to her injuries days later.",
-      who: "A 23-year-old student whose name became synonymous with the fight for systemic legal reform.",
-      investigation: "The investigation was fast-tracked due to intense public scrutiny.",
-      police: "Delhi Police faced immense pressure, leading to rapid arrests and a fast-tracked chargesheet.",
-      court: "The trial court convicted four adult accused, sentencing them to death. The verdict was upheld by the High Court and the Supreme Court.",
-      public: "The case triggered unprecedented nationwide protests, demanding systemic change, faster justice, and safer public spaces for women.",
-      government: "Formed the Justice Verma Committee, which submitted a comprehensive report recommending sweeping reforms in criminal law, police accountability, and political governance.",
-      changed: "Criminal Law (Amendment) Act, 2013: Broadened the definition of rape, criminalized acid attacks, stalking, and voyeurism, and introduced stricter penalties.",
-      notchanged: "Conviction rates remain a systemic challenge, and the implementation of safety infrastructure (like the Nirbhaya Fund) has seen delays.",
-      current: "Four adult convicts were executed in 2020; one convict died in custody in 2013; a juvenile convict was released after serving the maximum term.",
+      what: "Phoolan Devi, from a poor Mallah family in Uttar Pradesh, was married as a child and later became associated with armed gangs in the Chambal region. She alleged that she had been subjected to repeated sexual violence and abuse before the 1981 Behmai killings.",
+      who: "Phoolan Devi later became known as the 'Bandit Queen'. Her life was shaped by poverty, caste discrimination, child marriage, sexual violence and years spent outside the law.",
+      investigation: "Following the Behmai killings, Phoolan Devi became one of India's most wanted fugitives. She eventually surrendered in 1983.",
+      police: "Her years as an outlaw produced a nationwide manhunt, while her allegations of earlier abuse raised questions about how violence, caste and gender can intersect long before a person becomes a criminal defendant.",
+      court: "Phoolan Devi was imprisoned for years without a completed trial for the Behmai killings. She was eventually released in 1994 after the Uttar Pradesh government withdrew the cases against her.",
+      public: "She became a deeply polarising figure. Some viewed her as a symbol of resistance by an oppressed woman, while others focused on the violence attributed to her and the victims of the Behmai killings.",
+      government: "Her surrender and subsequent release became matters of major political controversy. She later entered electoral politics.",
+      changed: "Her story entered Indian popular culture and public debate as an extreme example of the relationship between caste, gender, poverty, violence and political power.",
+      notchanged: "Her life also raises a difficult question: when someone experiences years of violence before becoming involved in violence themselves, where does society draw the line between victimhood, responsibility and justice?",
+      current: "Phoolan Devi became a Member of Parliament before being assassinated in Delhi in 2001. Her life remains one of India's most controversial and widely discussed stories involving gender, caste and violence."
     }
   },
+
   {
-    id: "hathras-2020", title: "Hathras Case", year: 2020, era: "2020-2024",
-    location: "Hathras, Uttar Pradesh", type: "Sexual violence", status: "trial",
-    desc: "A young Dalit woman died after an alleged gang rape; her body was cremated by police at night without her family's presence, triggering nationwide protests over caste and institutional failure.",
+    id: "bhanwari-devi-1992",
+    title: "Bhanwari Devi Case",
+    year: 1992,
+    era: "1990s",
+    location: "Bhateri, Rajasthan",
+    type: "Sexual violence",
+    status: "landmark",
+    desc: "A government saathin worker was allegedly gang-raped after attempting to stop a child marriage. Her case became a defining story of institutional failure and women's resistance.",
     sections: {
-      what: "A 19-year-old Dalit woman in Hathras, Uttar Pradesh, was allegedly gang-raped and assaulted in September 2020, and died from her injuries roughly two weeks later at a Delhi hospital.",
-      who: "The victim, a young Dalit woman; her identity has been widely reported in domestic media but this archive follows the practice of not restating identifying details.",
-      investigation: "The state government later ordered a Special Investigation Team and the case was also examined by the CBI.",
-      police: "Uttar Pradesh police cremated the victim's body at night, reportedly without allowing her family to be present, a decision that drew sharp national condemnation.",
-      court: "The case proceeded to trial before a special court; reported trial outcomes have varied by charge, with some accused facing lesser convictions.",
-      public: "The case triggered nationwide protests over caste-based violence and alleged institutional cover-up, and drew international attention.",
-      government: "The Uttar Pradesh government initially restricted media and opposition access to the victim's village, drawing further criticism.",
-      changed: "Intensified national conversation on caste and gender intersecting in cases of sexual violence, and on state conduct around funeral rites for victims.",
-      notchanged: "Campaigners have continued to question the adequacy of the state's initial response and the pace of the judicial process.",
-      current: "Trial proceedings have continued; readers should consult current court records for the latest status.",
+      what: "Bhanwari Devi, a government-employed saathin in Rajasthan, was allegedly gang-raped in 1992 after working to prevent a child marriage as part of a government programme.",
+      who: "Bhanwari Devi was a village-level social worker who continued speaking about the case despite the personal and social consequences.",
+      investigation: "The case proceeded through the criminal justice system and attracted widespread criticism from women's organisations.",
+      police: "Accounts surrounding the case described serious difficulties in the investigative and medical process.",
+      court: "A Rajasthan sessions court acquitted the accused in 1995. The decision was strongly criticised by women's organisations.",
+      public: "The case became the basis for a wider legal challenge concerning women's safety at work.",
+      government: "The Supreme Court's Vishaka judgment established workplace sexual-harassment guidelines after the failure to adequately protect Bhanwari Devi.",
+      changed: "The 1997 Vishaka Guidelines became India's first major judicial framework specifically addressing workplace sexual harassment.",
+      notchanged: "The criminal case itself did not produce convictions of the accused, leaving a lasting contrast between institutional reform and individual justice.",
+      current: "Bhanwari Devi remains a central figure in India's history of workplace sexual-harassment law and women's rights."
     }
   },
+
   {
-    id: "rgkar-2024", title: "RG Kar Medical College Case", year: 2024, era: "2020-2024",
-    location: "Kolkata, West Bengal", type: "Sexual violence", status: "convicted",
-    desc: "A trainee doctor was raped and murdered inside her own hospital's seminar hall, triggering nationwide protests by doctors over workplace safety.",
+    id: "priyadarshini-mattoo-1996",
+    title: "Priyadarshini Mattoo Case",
+    year: 1996,
+    era: "1990s",
+    location: "New Delhi",
+    type: "Sexual violence and murder",
+    status: "convicted",
+    desc: "A law student was sexually assaulted and murdered in her home after years of alleged harassment and stalking, raising questions about influence, investigation and justice.",
     sections: {
-      what: "A trainee doctor was found dead, with evidence of sexual assault, inside a seminar hall at R.G. Kar Medical College and Hospital, Kolkata, in August 2024, after an overnight duty shift.",
-      who: "The victim, a postgraduate trainee doctor; her identity has been widely reported in domestic media but this archive follows the practice of not restating identifying details.",
-      investigation: "Kolkata Police initially investigated; the case was subsequently transferred to the CBI following public pressure and court intervention.",
-      police: "The hospital administration and local police faced accusations of delay and mishandling of the crime scene in the immediate aftermath.",
-      court: "A trial court convicted one accused, a civic volunteer who had reported access to the hospital, sentencing him to life imprisonment.",
-      public: "The case triggered sustained, nationwide strikes and protests by resident doctors demanding safer working conditions at hospitals.",
-      government: "The West Bengal government and hospital administration faced sustained criticism, including over the conduct of a hospital official during the aftermath.",
-      changed: "Renewed national attention on the safety of on-duty medical staff, particularly women, in hospital settings, and on protocols for preserving crime scenes at institutions.",
-      notchanged: "The victim's family and some doctors' associations have continued to raise concerns about whether all aspects of the case were fully investigated.",
-      current: "Conviction of one accused secured; broader questions raised by the family remain a subject of public debate.",
+      what: "Priyadarshini Mattoo, a 25-year-old law student, was found dead at her home in Delhi in 1996. The prosecution alleged that she had been stalked and harassed by Santosh Kumar Singh before her murder.",
+      who: "Priyadarshini Mattoo was a young law student. Her case became one of the most closely followed criminal trials in Delhi.",
+      investigation: "The investigation and prosecution faced criticism, particularly over the handling of evidence and the influence allegedly available to the accused's family.",
+      police: "The case raised concerns about whether earlier complaints and allegations of harassment had been taken seriously enough.",
+      court: "In 1999, a trial court acquitted the accused, citing reasonable doubt. The acquittal generated intense public criticism. The Delhi High Court later convicted him and sentenced him to death; the Supreme Court subsequently commuted the sentence to life imprisonment.",
+      public: "The case received extensive media attention and became associated with public frustration over perceived failures in the criminal justice system.",
+      government: "The case became part of a wider public debate about police investigations, influential accused persons and the ability of ordinary families to obtain justice.",
+      changed: "The case became an important example of how persistent public scrutiny can accompany long-running criminal proceedings.",
+      notchanged: "The initial acquittal left a painful question for the family: if the evidence existed but justice failed at one stage, how many families would have the resources to keep fighting?",
+      current: "Santosh Kumar Singh was ultimately convicted and sentenced to life imprisonment."
     }
   },
+
   {
-    id: "sleeper-bus-2026", title: "Delhi-NCR Sleeper Bus Case", year: 2026, era: "2025-Present",
-    location: "Greater Noida to Delhi", type: "Transport-related crime", status: "investigation",
-    desc: "A minor survivor was allegedly assaulted aboard a moving interstate sleeper bus. No identifying details are published; all matters remain alleged.",
+    id: "jessica-lal-1999",
+    title: "Jessica Lal Murder Case",
+    year: 1999,
+    era: "1990s",
+    location: "New Delhi",
+    type: "Murder",
+    status: "convicted",
+    desc: "A model working at a Delhi party was shot dead after refusing to serve a man alcohol. The initial acquittal triggered extraordinary public pressure.",
     sections: {
-      what: "A minor survivor was allegedly assaulted aboard a moving interstate sleeper bus traveling from Greater Noida to Delhi.",
-      who: "A 16-year-old survivor; identity protected.",
-      investigation: "Authorities are examining reported safety failures, including the functionality of in-bus CCTV systems and driver verification protocols.",
-      police: "An FIR was registered, and arrests were made based on initial complaints and digital evidence.",
-      court: "Not yet at trial as of this writing.",
-      public: "Renewed national scrutiny on interstate transport safety and the enforcement of mandated safety protocols.",
-      government: "State transport authorities have issued notices to the operator, though systemic enforcement of transport safety rules remains under severe scrutiny.",
-      changed: "To be assessed as the investigation progresses.",
-      notchanged: "To be assessed as the investigation progresses.",
-      current: "ONGOING — investigation stage.",
+      what: "Jessica Lal was working as a celebrity bartender at a private party in Delhi in April 1999. She was shot after refusing to serve alcohol after hours.",
+      who: "Jessica Lal was a 34-year-old model and television personality. Her death became one of India's most prominent cases involving witness intimidation and public pressure.",
+      investigation: "The investigation involved numerous witnesses, and several witnesses later became hostile or changed their accounts.",
+      police: "The investigation attracted criticism over the handling of witnesses and evidence.",
+      court: "A trial court acquitted Manu Sharma and other accused in 2006. The acquittal triggered enormous public anger. The Delhi High Court later convicted Sharma and sentenced him to life imprisonment, a decision upheld by the Supreme Court.",
+      public: "Media campaigns and public protests turned the case into a national debate over whether powerful or well-connected accused persons could escape justice.",
+      government: "The case placed enormous pressure on the criminal justice system to respond to public concerns about witness protection and prosecution.",
+      changed: "The case became a landmark example of the role of media scrutiny and public pressure in criminal justice.",
+      notchanged: "The initial acquittal demonstrated how fragile a prosecution can become when witnesses withdraw or evidence is contested.",
+      current: "Manu Sharma was convicted and sentenced to life imprisonment and was released from prison in 2020 after remission."
+    }
+  },
+
+  {
+    id: "nitish-katara-2002",
+    title: "Nitish Katara Murder Case",
+    year: 2002,
+    era: "2000s",
+    location: "Ghaziabad, Uttar Pradesh",
+    type: "Honour-related murder",
+    status: "convicted",
+    desc: "A young business executive was murdered after attending a wedding. The case became a landmark example of an honour-related killing involving powerful families.",
+    sections: {
+      what: "Nitish Katara was abducted after attending a wedding in Ghaziabad in February 2002. His body was later found in Uttar Pradesh.",
+      who: "Nitish Katara was a young business executive whose relationship with a woman from a politically influential family became central to the prosecution's case.",
+      investigation: "The investigation identified several accused and focused on the circumstances surrounding the abduction and killing.",
+      police: "The case raised questions about influence and the ability of powerful families to affect criminal proceedings.",
+      court: "The accused were convicted after a lengthy trial and appeals. The courts treated the murder as connected to the relationship between Katara and the daughter of a politically influential family.",
+      public: "The case received extensive national attention because of its association with honour-based violence and political influence.",
+      government: "The prolonged proceedings placed attention on whether ordinary victims could receive justice when the accused had powerful connections.",
+      changed: "The case became a major reference point in discussions of honour killings and the criminalisation of relationships by families.",
+      notchanged: "The long duration of proceedings demonstrated the distance between a crime being committed and a final judicial resolution.",
+      current: "The principal accused were convicted and sentenced to lengthy imprisonment."
+    }
+  },
+
+  {
+    id: "nirbhaya-2012",
+    title: "Nirbhaya Case",
+    year: 2012,
+    era: "2010-2014",
+    location: "New Delhi",
+    type: "Sexual violence and murder",
+    status: "convicted",
+    desc: "A brutal gang rape and assault on a moving bus became a national trauma. Millions took to the streets asking a question that went beyond one case: how safe are women in India?",
+    sections: {
+      what: "In December 2012, a 23-year-old physiotherapy student was subjected to a brutal sexual assault and severe physical violence aboard a moving private bus in Delhi. She later died from her injuries.",
+      who: "A young student whose death became a symbol of India's wider struggle with violence against women.",
+      investigation: "The investigation proceeded under enormous public scrutiny, with arrests and a chargesheet following rapidly.",
+      police: "Delhi Police faced intense pressure over the investigation and over broader concerns about women's safety in the capital.",
+      court: "Four adult accused were convicted and sentenced to death. Their convictions and sentences were upheld through the higher courts.",
+      public: "Massive demonstrations spread across Delhi and other parts of India. Protesters demanded justice, safer public transport, better policing and accountability.",
+      government: "The government established the Justice J.S. Verma Committee, which examined legal and institutional responses to sexual violence.",
+      changed: "The Criminal Law (Amendment) Act, 2013 significantly changed India's legal framework around sexual offences.",
+      notchanged: "The case changed laws, but the question that remained was much larger: can changing the law alone make a woman feel safe walking home, entering a bus or travelling at night?",
+      current: "Four adult convicts were executed in 2020. One accused died in custody in 2013, while the juvenile offender was released after serving the maximum period permitted under the law at that time."
+    }
+  },
+
+  {
+    id: "unao-2017",
+    title: "Unnao Rape Case",
+    year: 2017,
+    era: "2015-2019",
+    location: "Unnao, Uttar Pradesh",
+    type: "Sexual violence and political influence",
+    status: "convicted",
+    desc: "A teenager accused a sitting MLA of rape. The case later involved allegations of intimidation, an attack on the survivor's family and a fatal road crash.",
+    sections: {
+      what: "In 2017, a teenage girl from Unnao accused then-MLA Kuldeep Singh Sengar of rape. The case later became one of India's most closely watched examples of alleged political influence in a sexual-violence investigation.",
+      who: "The survivor was a minor at the time of the alleged offence. Her identity is protected.",
+      investigation: "The investigation became increasingly controversial after the survivor's family alleged pressure and intimidation.",
+      police: "The initial response drew criticism over the handling of the survivor's allegations and the delay before decisive action against the accused.",
+      court: "The Central Bureau of Investigation investigated the case. In 2019, a Delhi court convicted Kuldeep Singh Sengar of rape and sentenced him to life imprisonment.",
+      public: "The case received nationwide attention, particularly after the survivor and her family continued to face danger while seeking justice.",
+      government: "The Supreme Court transferred the trials from Uttar Pradesh to Delhi and ordered measures concerning the survivor's protection.",
+      changed: "The case intensified public discussion about political influence, survivor protection and the independence of criminal investigations.",
+      notchanged: "The case raised a painful question: what happens when the person accused of a serious crime is also a powerful public representative?",
+      current: "Kuldeep Singh Sengar remains convicted in the rape case and has also faced conviction in connection with the death of the survivor's father."
+    }
+  },
+
+  {
+    id: "kathua-2018",
+    title: "Kathua Case",
+    year: 2018,
+    era: "2015-2019",
+    location: "Kathua, Jammu and Kashmir",
+    type: "Child sexual violence and murder",
+    status: "convicted",
+    desc: "The rape and murder of an eight-year-old girl became a national controversy involving sexual violence, communal tensions, political mobilisation and demands for justice.",
+    sections: {
+      what: "In January 2018, an eight-year-old girl from a nomadic Muslim community disappeared in Kathua district. She was later found dead. The investigation alleged that she had been sexually assaulted and murdered.",
+      who: "The victim was an eight-year-old child. Her identity is protected.",
+      investigation: "The investigation was conducted by Jammu and Kashmir Police and resulted in charges against several accused.",
+      police: "The case generated controversy over allegations of interference and the conduct of people associated with the accused.",
+      court: "The trial was transferred from Jammu to Pathankot, Punjab. In 2019, the court convicted several accused, including three who received life sentences, while one accused was acquitted.",
+      public: "The case triggered protests across India and became entangled with communal and political tensions.",
+      government: "The Supreme Court transferred the trial outside Jammu and Kashmir after concerns about conducting a fair trial in the local environment.",
+      changed: "The case intensified national discussion about crimes against children, communalisation of sexual violence and the protection of vulnerable communities.",
+      notchanged: "The case demonstrated how quickly the identity of a victim can become secondary to political and communal conflict surrounding the crime.",
+      current: "Several accused were convicted, while others were acquitted. Appeals and related proceedings have continued."
+    }
+  },
+
+  {
+    id: "hathras-2020",
+    title: "Hathras Case",
+    year: 2020,
+    era: "2020-2024",
+    location: "Hathras, Uttar Pradesh",
+    type: "Sexual violence",
+    status: "convicted",
+    desc: "A young Dalit woman died after an alleged assault. The handling of her body and the investigation became almost as controversial as the crime itself.",
+    sections: {
+      what: "A 19-year-old Dalit woman from Hathras was severely injured in September 2020 and later died at a Delhi hospital.",
+      who: "The victim was a young Dalit woman from a rural family. Her identity is not reproduced here.",
+      investigation: "The Uttar Pradesh government established a Special Investigation Team, and the Central Bureau of Investigation subsequently investigated the case.",
+      police: "The police cremated the victim's body during the night. The family said they were not allowed to perform the final rites in the manner they wanted. The incident generated nationwide outrage.",
+      court: "In 2023, a special court convicted one accused of culpable homicide not amounting to murder and offences under the Scheduled Castes and Scheduled Tribes law, while acquitting three others of the principal charges.",
+      public: "The case triggered protests over caste, gender, police conduct and the treatment of the victim's family.",
+      government: "The Uttar Pradesh government's handling of the case attracted intense scrutiny, including over restrictions around access to the village.",
+      changed: "The case brought renewed attention to the intersection of caste and gender in sexual-violence cases.",
+      notchanged: "The case left questions about how much control a grieving family has over what happens to their loved one's remains and how institutions respond when public pressure becomes overwhelming.",
+      current: "The special court's 2023 judgment resulted in one conviction and three acquittals on the principal charges."
+    }
+  },
+
+  {
+    id: "manipur-2023",
+    title: "Manipur Women Assault Case",
+    year: 2023,
+    era: "2020-Present",
+    location: "Manipur",
+    type: "Sexual violence during communal conflict",
+    status: "investigation",
+    desc: "A video showing two women being paraded naked during ethnic violence shocked India and drew attention to sexual violence during communal conflict.",
+    sections: {
+      what: "During the ethnic violence in Manipur in 2023, two women were publicly paraded naked and sexually assaulted by a mob. A video of the incident later circulated widely online.",
+      who: "The survivors were women from the Kuki-Zo community. Their identities are protected.",
+      investigation: "The incident came under investigation after the video brought international attention to the allegations.",
+      police: "The delayed registration and handling of complaints became major subjects of criticism and public discussion.",
+      court: "The Supreme Court took note of the incident and expressed serious concern about violence against women during the conflict.",
+      public: "The video triggered widespread outrage across India and renewed attention to the treatment of women during communal and ethnic violence.",
+      government: "The Union government and Manipur authorities faced intense scrutiny over the wider handling of the ethnic conflict and the protection of civilians.",
+      changed: "The case highlighted how sexual violence can be used as a form of humiliation and intimidation during communal conflict.",
+      notchanged: "The incident raised one of the darkest questions in the archive: what happens to justice when society itself is divided by violence?",
+      current: "The criminal investigation and court proceedings have continued."
+    }
+  },
+
+  {
+    id: "rgkar-2024",
+    title: "R.G. Kar Medical College Case",
+    year: 2024,
+    era: "2020-Present",
+    location: "Kolkata, West Bengal",
+    type: "Sexual violence and murder",
+    status: "convicted",
+    desc: "A postgraduate trainee doctor was found dead inside her hospital after an overnight shift. The case triggered nationwide protests by doctors demanding safety and accountability.",
+    sections: {
+      what: "In August 2024, a postgraduate trainee doctor was found dead inside R.G. Kar Medical College and Hospital in Kolkata after an overnight duty shift. The investigation treated the death as involving sexual violence.",
+      who: "The victim was a young postgraduate medical trainee. Her identity is not reproduced here.",
+      investigation: "Kolkata Police initially investigated the case before the Central Bureau of Investigation took over following court intervention and intense public pressure.",
+      police: "The handling of the crime scene and the initial response by hospital authorities and police became subjects of intense public scrutiny.",
+      court: "A trial court convicted one accused in January 2025 and sentenced him to life imprisonment.",
+      public: "Resident doctors and medical professionals across India held protests and strikes demanding safer working conditions and stronger institutional accountability.",
+      government: "The West Bengal government faced sustained criticism during the protests, while the Supreme Court became involved in broader questions surrounding medical-worker safety.",
+      changed: "The case renewed national attention on security inside hospitals, especially for women working overnight shifts.",
+      notchanged: "The conviction answered the question of one accused person's criminal responsibility, but broader questions about institutional failures and whether everything surrounding the incident was fully investigated continued.",
+      current: "One accused has been convicted and sentenced to life imprisonment. Broader issues raised by the case have remained subjects of legal and public discussion."
+    }
+  },
+
+  {
+    id: "priyanka-reddy-2019",
+    title: "Priyanka Reddy Case",
+    year: 2019,
+    era: "2015-2019",
+    location: "Shamshabad, Telangana",
+    type: "Sexual violence and murder",
+    status: "historical",
+    desc: "The murder of a young veterinary doctor triggered enormous public anger over women's safety, policing and the fear of travelling alone at night.",
+    sections: {
+      what: "In November 2019, a 26-year-old veterinary doctor was killed near Hyderabad after being attacked by a group of men.",
+      who: "She was a young veterinary doctor whose death generated an extraordinary public response across India.",
+      investigation: "Police arrested four suspects shortly after the incident.",
+      police: "The case received intense scrutiny over questions surrounding the response to the initial missing-person report and the events leading up to the discovery of her body.",
+      court: "The four accused were killed in a police encounter in December 2019. The circumstances of the encounter subsequently became the subject of a separate judicial inquiry.",
+      public: "Large crowds gathered to protest the killing and demand greater safety for women.",
+      government: "The Telangana government faced pressure over women's safety and the policing of crimes against women.",
+      changed: "The case intensified national discussion around emergency response, public transport, policing and women's safety after dark.",
+      notchanged: "The encounter also created a second question: can justice be considered complete when suspects die before a criminal trial establishes their guilt?",
+      current: "The police encounter itself was examined through a judicial commission, making the case a complex example of both sexual violence and the limits of extrajudicial responses."
     }
   }
 ];
@@ -184,7 +402,7 @@ const SOURCES = [
 
 const STATUS_LABELS: Record<CaseStatus, string> = {
   investigation: "Investigation", trial: "Trial", convicted: "Convicted",
-  acquitted: "Acquitted", appeal: "Appeal", ongoing: "Ongoing", landmark: "Legal Landmark"
+  acquitted: "Acquitted", appeal: "Appeal", ongoing: "Ongoing", landmark: "Legal Landmark", historical: "Historical"
 };
 
 const NAV_LINKS = [
