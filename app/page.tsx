@@ -239,7 +239,7 @@ export default function Home() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <main className={`archive-root ${serif.variable} ${sans.variable} ${mono.variable}`}>
+  <main className="archive-root">
       <style>{CSS}</style>
       <a href="#main" className="skip-link">Skip to main content</a>
 
