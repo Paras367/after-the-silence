@@ -361,7 +361,49 @@ const CASES: CaseData[] = [
       notchanged: "The encounter also created a second question: can justice be considered complete when suspects die before a criminal trial establishes their guilt?",
       current: "The police encounter itself was examined through a judicial commission, making the case a complex example of both sexual violence and the limits of extrajudicial responses."
     }
+  },
+
+  {
+  id: "delhi-sleeper-bus-2026",
+
+  title: "Delhi-NCR Sleeper Bus Case",
+
+  year: 2026,
+
+  era: "2025-Present",
+
+  location: "Greater Noida → Delhi",
+
+  type: "Sexual violence",
+
+  status: "trial",
+
+  desc: "The alleged sexual assault of a teenage girl on a sleeper bus travelling towards Delhi raised questions about passenger safety, surveillance and the protection of women travelling alone.",
+
+  sections: {
+
+    what: "In August 2026, a teenage girl travelling on a sleeper bus from Greater Noida towards Delhi was allegedly sexually assaulted inside the moving vehicle.",
+
+    who: "The survivor was a teenage girl travelling by bus. Police identified and arrested two men in connection with the alleged assault.",
+
+    investigation: "Police investigated the journey of the bus, questioned those connected with the vehicle and collected evidence as part of the case.",
+
+    police: "The police response came under scrutiny over how the incident occurred inside a commercial passenger vehicle and whether adequate safeguards existed for passengers.",
+
+    court: "The accused were arrested and a chargesheet was subsequently filed. The criminal case remains subject to judicial proceedings, and the allegations have not resulted in a final conviction.",
+
+    public: "The case drew attention to the safety of women and minors using overnight and sleeper-bus services.",
+
+    government: "The incident renewed questions about passenger safety measures, monitoring of sleeper buses and the enforcement of safeguards for women travelling by road.",
+
+    changed: "The case added to wider discussion around CCTV coverage, driver and conductor accountability, emergency reporting mechanisms and safety inside long-distance buses.",
+
+    notchanged: "The incident also raised a basic question about how much responsibility passenger transport operators should bear for preventing and responding to crimes occurring inside their vehicles.",
+
+    current: "The case is before the courts. The accused remain subject to the criminal justice process, and the final outcome will depend on the proceedings and evidence presented before the court."
+
   }
+}
 ];
 
 const REFORMS = [
