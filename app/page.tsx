@@ -455,13 +455,34 @@ const STATUS_LABELS: Record<CaseStatus, string> = {
 };
 
 const NAV_LINKS = [
-  { href: "#hero", label: "Home" },
-  { href: "#archive", label: "Cases" },
-  { href: "#timeline", label: "Timeline" },
-  { href: "#reforms", label: "Reforms" },
-  { href: "#accountability", label: "Accountability" },
-  { href: "#sources", label: "Sources" },
+  { href: "#hero", label: "The Silence", index: "01" },
+  { href: "#archive", label: "The Cases", index: "02" },
+  { href: "#timeline", label: "The Years", index: "03" },
+  { href: "#reforms", label: "What Changed", index: "04" },
+  { href: "#accountability", label: "Who Answered", index: "05" },
+  { href: "#sources", label: "The Record", index: "06" },
 ];
+
+const NAV_META = {
+  left: "AFTER THE SILENCE",
+  center: "AN OPEN ARCHIVE",
+  right: "1972 — PRESENT",
+};
+
+<div className="nav-meta">
+  <span className="nav-meta-left">
+    {NAV_META.left}
+  </span>
+
+  <span className="nav-meta-center">
+    <span className="nav-status-dot" />
+    {NAV_META.center}
+  </span>
+
+  <span className="nav-meta-right">
+    {NAV_META.right}
+  </span>
+</div>
 
 /* ============================================================
    SMALL COMPONENTS
@@ -1034,6 +1055,85 @@ body.light{
   --ink:#f7f4ec; --ink-soft:#ece5d8; --paper:#1c1917; --paper-dim:#4c4638; --paper-faint:#6b6356;
   --crimson:#8f2f2c; --crimson-br:#8f2f2c; --gold:#7a5f22; --rule:#cfc5b4; --rule-lite:#ddd4c4;
   --ok:#3f6a2f; --warn:#7a5f22; --fail:#8f2f2c; --nav-bg:rgba(247,244,236,0.94);
+}
+
+/* ───────── NAV META ───────── */
+
+.nav-meta {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  padding: 7px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.nav-meta-left {
+  justify-self: start;
+  opacity: 0.55;
+}
+
+.nav-meta-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  opacity: 0.8;
+}
+
+.nav-meta-right {
+  justify-self: end;
+  opacity: 0.55;
+}
+
+.nav-status-dot {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: nav-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nav-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ───────── MOBILE ───────── */
+
+@media (max-width: 700px) {
+  .nav-meta {
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 6px 0;
+  }
+
+  .nav-meta-left {
+    display: none;
+  }
+
+  .nav-meta-center {
+    justify-self: start;
+  }
+
+  .nav-meta-right {
+    justify-self: end;
+  }
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
