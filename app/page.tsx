@@ -1135,7 +1135,153 @@ body.light{
     justify-self: end;
   }
 }
+/* =========================================================
+   AFTER THE SILENCE — GLOBAL ATMOSPHERE
+   ========================================================= */
 
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ───────── FILM GRAIN ───────── */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.035;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+/* ───────── SCREEN VIGNETTE ───────── */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0, 0, 0, 0.12) 100%
+    );
+}
+
+/* ───────── TEXT SELECTION ───────── */
+
+::selection {
+  background: rgba(255, 255, 255, 0.16);
+  color: inherit;
+}
+
+/* ───────── SCROLLBAR ───────── */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ───────── IMAGES ───────── */
+
+img {
+  display: block;
+  max-width: 100%;
+
+  transition:
+    filter 500ms ease,
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+a:hover img,
+button:hover img {
+  filter: brightness(0.88) contrast(1.05);
+}
+
+/* ───────── LINKS ───────── */
+
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* ───────── ACCESSIBILITY ───────── */
+
+:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* ───────── SECTION RULES ───────── */
+
+.on-rule {
+  position: relative;
+}
+
+.on-rule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 0;
+  height: 1px;
+
+  background: currentColor;
+  opacity: 0.18;
+
+  transition:
+    width 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.on-rule:hover::before {
+  width: 100%;
+}
+
+/* ───────── REDUCED MOTION ───────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+  
 *,*::before,*::after{ box-sizing:border-box; }
 html{ scroll-behavior:smooth; }
 @media (prefers-reduced-motion:reduce){
