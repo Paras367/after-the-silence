@@ -692,62 +692,221 @@ export default function Home() {
             </div>
           </div>
         </section>
-
         {/* CASE ARCHIVE */}
         <section id="archive" className="on-rule">
           <div className="wrap">
+
             <div className="section-head">
               <div className="eyebrow">The Archive</div>
               <h2>Case Records</h2>
-              <p>Every entry is tagged with its evidentiary status. Hover over tags for definitions.</p>
+              <p>
+                A record of cases that became part of India's collective memory.
+              </p>
             </div>
 
             <div className="archive-controls">
+
               <div className="search-box">
-                <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search cases, locations, or keywords..." aria-label="Search cases" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search cases, locations, or keywords..."
+                  aria-label="Search cases"
+                />
               </div>
-              <select value={era} onChange={(e) => setEra(e.target.value)} className="filter-select" aria-label="Filter by era">
+
+              <select
+                value={era}
+                onChange={(e) => setEra(e.target.value)}
+                className="filter-select"
+                aria-label="Filter by era"
+              >
                 <option value="">All Eras</option>
                 <option value="1970s">1970s</option>
+                <option value="1980s">1980s</option>
                 <option value="1990s">1990s</option>
+                <option value="2000s">2000s</option>
                 <option value="2010-2014">2010–2014</option>
+                <option value="2015-2019">2015–2019</option>
                 <option value="2020-2024">2020–2024</option>
                 <option value="2025-Present">2025–Present</option>
               </select>
-              <select value={type} onChange={(e) => setType(e.target.value)} className="filter-select" aria-label="Filter by type">
+
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="filter-select"
+                aria-label="Filter by type"
+              >
                 <option value="">All Types</option>
                 <option value="Sexual violence">Sexual violence</option>
                 <option value="Custodial violence">Custodial violence</option>
-                <option value="Transport-related crime">Transport-related crime</option>
+                <option value="Transport-related crime">
+                  Transport-related crime
+                </option>
+                <option value="Sexual violence and murder">
+                  Sexual violence + murder
+                </option>
+                <option value="Murder">Murder</option>
+                <option value="Honour-related murder">
+                  Honour-related
+                </option>
+                <option value="Child sexual violence and murder">
+                  Crimes against children
+                </option>
+                <option value="Sexual violence during communal conflict">
+                  Conflict-related
+                </option>
               </select>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className="filter-select" aria-label="Filter by status">
+
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="filter-select"
+                aria-label="Filter by status"
+              >
                 <option value="">All Statuses</option>
                 <option value="investigation">Investigation</option>
                 <option value="trial">Trial</option>
                 <option value="convicted">Convicted</option>
                 <option value="ongoing">Ongoing</option>
                 <option value="landmark">Legal Landmark</option>
+                <option value="historical">Historical</option>
               </select>
-              <div className="filter-count" aria-live="polite">{filteredCases.length} of {CASES.length} cases</div>
+
+              <div className="filter-count" aria-live="polite">
+                {filteredCases.length} of {CASES.length} cases
+              </div>
+
             </div>
 
-            <div className="case-grid">
+            <div className="case-timeline">
+
               {filteredCases.length === 0 ? (
-                <div className="empty-state">No cases match this search. Try clearing a filter.</div>
+
+                <div className="empty-state">
+                  <span>NO RECORD FOUND</span>
+                  <p>
+                    No cases match your search. Try removing a filter.
+                  </p>
+                </div>
+
               ) : (
-                filteredCases.map(c => (
-                  <button key={c.id} className="case-card" onClick={() => setSelectedCase(c)} aria-haspopup="dialog">
-                    <span className="year">{c.year} · {c.location}</span>
-                    <span className="ctitle">{c.title}</span>
-                    <span className="desc">{c.desc}</span>
-                    <span className="foot">
-                      <span className={`status-pill ${c.status}`}>{STATUS_LABELS[c.status]}</span>
-                      <span className="loc">{c.type}</span>
-                    </span>
+
+                filteredCases.map((c, index) => (
+
+                  <button
+                    key={c.id}
+                    className="archive-record"
+                    onClick={() => setSelectedCase(c)}
+                    aria-haspopup="dialog"
+                  >
+
+                    <div className="record-marker">
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                    </div>
+
+                    <div className="record-year">
+                      <span>{c.year}</span>
+                    </div>
+
+                    <div className="record-main">
+
+                      <div className="record-meta">
+                        <span>{c.location}</span>
+                        <i>•</i>
+                        <span>{c.type}</span>
+                      </div>
+
+                      <h3>{c.title}</h3>
+
+                      <p className="record-desc">
+                        {c.desc}
+                      </p>
+
+                      <div className="record-question">
+                        <span className="question-label">
+                          WHY THIS CASE MATTERS
+                        </span>
+
+                        <span className="question-line" />
+
+                        <span className="question-arrow">
+                          →
+                        </span>
+                      </div>
+
+                      <div className="record-footer">
+
+                        <span
+                          className={`status-pill ${c.status}`}
+                        >
+                          {STATUS_LABELS[c.status]}
+                        </span>
+
+                        <span className="open-record">
+                          OPEN CASE FILE
+                          <span>↗</span>
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                    <div className="record-index">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
                   </button>
+
                 ))
+
               )}
+
             </div>
+
+            {filteredCases.length > 0 && (
+              <div className="archive-end">
+
+                <div className="archive-end-line" />
+
+                <div className="archive-end-content">
+
+                  <span className="eyebrow">
+                    END OF CURRENT RECORD
+                  </span>
+
+                  <h3>
+                    The archive ends here.
+                    <br />
+                    <em>The questions don't.</em>
+                  </h3>
+
+                  <p>
+                    Every case has a beginning. Every investigation has a
+                    record. Every judgment leaves something behind.
+                  </p>
+
+                  <div className="archive-final-question">
+                    <span>?</span>
+
+                    <div>
+                      <small>THE QUESTION</small>
+
+                      <strong>
+                        After everything we've read,
+                        <br />
+                        are we actually safer?
+                      </strong>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
           </div>
         </section>
 
