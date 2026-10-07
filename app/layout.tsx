@@ -96,10 +96,8 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
-  
-  // Alternative languages (if you ever add Hindi/regional translations)
   alternates: {
-    canonical: 'https://afterthesilence.archive',
+    canonical: 'https://after-the-silence.vercel.app/',  
   },
 };
 
@@ -139,12 +137,12 @@ const jsonLd = {
     name: 'After The Silence Archive',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://afterthesilence.archive/logo.png' // TODO: Add logo to /public
+      url: '#' // TODO: Add logo to /public
     }
   },
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://afterthesilence.archive/archive?search={search_term_string}',
+    target: 'https://after-the-silence.vercel.app/archive?search={search_term_string}',
     'query-input': 'required name=search_term_string'
   }
 };
