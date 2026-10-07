@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 
-declare const NAV_LINKS: Array<{ href: string; label: string }> | undefined;
-
 // Fallback in case lib/data is temporarily unavailable
 const DEFAULT_NAV_LINKS = [
   { href: '/cases', label: 'Case Records' },
@@ -22,26 +20,28 @@ export default function Nav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Initialize theme from localStorage (prevents hydration mismatch)
+  // Initialize theme from localStorage on mount (prevents hydration mismatch)
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem('ats-theme');
       if (savedTheme === 'light') {
         setIsLightMode(true);
         document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
       }
     } catch (e) {
       // Ignore localStorage errors (e.g., private browsing)
     }
   }, []);
 
-  // Scroll listener for glassmorphism effect
+  // Scroll listener for subtle border enhancement
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Check initial state
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -53,11 +53,14 @@ export default function Nav() {
   const toggleTheme = useCallback(() => {
     const next = !isLightMode;
     setIsLightMode(next);
+    
+    // Toggle class on the <html> element for global, reliable CSS targeting
     if (next) {
       document.documentElement.classList.add('light');
     } else {
       document.documentElement.classList.remove('light');
     }
+    
     try {
       localStorage.setItem('ats-theme', next ? 'light' : 'dark');
     } catch (e) {}
@@ -68,7 +71,10 @@ export default function Nav() {
     [pathname]
   );
 
-  const navLinks = typeof NAV_LINKS !== 'undefined' ? NAV_LINKS : DEFAULT_NAV_LINKS;
+  // Safely access NAV_LINKS if it exists globally, otherwise use default
+  const navLinks = typeof (globalThis as any).NAV_LINKS !== 'undefined' 
+    ? (globalThis as any).NAV_LINKS 
+    : DEFAULT_NAV_LINKS;
 
   return (
     <>
@@ -94,9 +100,7 @@ export default function Nav() {
                   className={`nav-link ${active ? 'active' : ''}`} 
                   aria-current={active ? 'page' : undefined}
                 >
-                  {active && <span className="active-indicator">[</span>}
                   {l.label}
-                  {active && <span className="active-indicator">]</span>}
                 </Link>
               );
             })}
@@ -115,7 +119,7 @@ export default function Nav() {
             </button>
             
             <Link href="/cases" className="explore-btn">
-              EXPLORE
+              EXPLORE ARCHIVE
               <span className="explore-arrow">→</span>
             </Link>
 
@@ -129,6 +133,7 @@ export default function Nav() {
               <span className="hamburger-lines">
                 <span className={`line line-1 ${isMobileMenuOpen ? 'open' : ''}`} />
                 <span className={`line line-2 ${isMobileMenuOpen ? 'open' : ''}`} />
+                <span className={`line line-3 ${isMobileMenuOpen ? 'open' : ''}`} />
               </span>
             </button>
           </div>
@@ -144,7 +149,7 @@ export default function Nav() {
                   key={l.href} 
                   href={l.href} 
                   className={`mobile-link ${active ? 'active' : ''}`}
-                  style={{ animationDelay: `${i * 0.05}s` }}
+                  style={{ animationDelay: `${i * 0.06}s` }}
                 >
                   <span className="mobile-link-text">{l.label}</span>
                   {active && <span className="mobile-active-mark">◈</span>}
@@ -159,36 +164,34 @@ export default function Nav() {
 }
 
 // ============================================================
-// ARCHIVAL NAVIGATION STYLESHEET
+// ARCHIVAL NAVIGATION STYLESHEET (Solid, Editorial, No Glassmorphism)
 // ============================================================
 const CSS = `
-/* Base Nav Container */
+/* Base Nav Container - Solid, Opaque, Authoritative */
 .archive-nav {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(19, 17, 16, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--ink, #131110);
+  border-bottom: 1px solid var(--rule, #3c3733);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .archive-nav.scrolled {
-  background: rgba(19, 17, 16, 0.85);
-  border-bottom-color: var(--rule, #3c3733);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-bottom-color: var(--crimson, #8f2f2c);
+  box-shadow: 0 4px 0px rgba(143, 47, 44, 0.1);
 }
 
-.archive-root.light .archive-nav {
-  background: rgba(247, 244, 236, 0.6);
-}
-.archive-root.light .archive-nav.scrolled {
-  background: rgba(247, 244, 236, 0.85);
+/* Light Mode Overrides for Nav */
+html.light .archive-nav {
+  background: var(--lp-paper, #f7f4ec);
   border-bottom-color: var(--lp-rule, #d3cabb);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+html.light .archive-nav.scrolled {
+  border-bottom-color: var(--crimson, #8f2f2c);
+  box-shadow: 0 4px 0px rgba(143, 47, 44, 0.05);
 }
 
 .nav-inner {
@@ -206,68 +209,81 @@ const CSS = `
 .nav-brand {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
   text-decoration: none;
   color: var(--paper, #ece5d8);
-  font-family: var(--font-serif, Georgia, serif);
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
   transition: opacity 0.2s;
 }
-.archive-root.light .nav-brand { color: var(--ink-soft, #1c1917); }
-.nav-brand:hover { opacity: 0.8; }
+html.light .nav-brand { color: var(--ink-soft, #1c1917); }
+.nav-brand:hover { opacity: 0.85; }
 
 .brand-pre {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 0.85rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  color: var(--paper-dim, #b9b0a0);
+  letter-spacing: 0.12em;
+  color: var(--gold, #a9873f);
 }
-.archive-root.light .brand-pre { color: #5a5348; }
 
 .brand-main {
-  color: var(--crimson, #8f2f2c);
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--paper, #ece5d8);
 }
+html.light .brand-main { color: var(--ink-soft, #1c1917); }
 
 .brand-dot {
-  color: var(--gold, #a9873f);
-  font-size: 1.4rem;
+  color: var(--crimson, #8f2f2c);
+  font-size: 1.6rem;
   line-height: 0;
   margin-left: 2px;
+  margin-bottom: 4px;
 }
 
 /* Desktop Links */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  height: 100%;
 }
 
 .nav-link {
   font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--paper-dim, #b9b0a0);
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  padding: 0 16px;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 4px;
+  position: relative;
+  transition: color 0.2s ease;
 }
-.archive-root.light .nav-link { color: #5a5348; }
+html.light .nav-link { color: #5a5348; }
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: var(--gold, #a9873f);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 .nav-link:hover {
   color: var(--paper, #ece5d8);
-  background: rgba(255, 255, 255, 0.05);
 }
-.archive-root.light .nav-link:hover {
+html.light .nav-link:hover {
   color: var(--ink-soft, #1c1917);
-  background: rgba(0, 0, 0, 0.04);
 }
 
 .nav-link.active {
@@ -275,100 +291,106 @@ const CSS = `
   font-weight: 600;
 }
 
-.active-indicator {
-  color: var(--crimson, #8f2f2c);
-  opacity: 0.7;
-  font-size: 0.85rem;
+.nav-link.active::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* Actions */
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
+/* Theme Toggle - Tactile, Inverting Box */
 .theme-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: transparent;
   border: 1px solid var(--rule, #3c3733);
   color: var(--paper-dim, #b9b0a0);
   font-family: var(--font-mono, monospace);
   font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  padding: 8px 12px;
-  border-radius: 4px;
+  letter-spacing: 0.1em;
+  padding: 8px 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
-.archive-root.light .theme-toggle {
+html.light .theme-toggle {
   border-color: var(--lp-rule, #d3cabb);
   color: #5a5348;
 }
 
 .theme-toggle:hover {
-  border-color: var(--gold, #a9873f);
-  color: var(--gold, #a9873f);
+  background: var(--paper, #ece5d8);
+  color: var(--ink, #131110);
+  border-color: var(--paper, #ece5d8);
+}
+html.light .theme-toggle:hover {
+  background: var(--ink-soft, #1c1917);
+  color: var(--lp-paper, #f7f4ec);
+  border-color: var(--ink-soft, #1c1917);
 }
 
 .theme-icon { font-size: 0.9rem; line-height: 1; }
 
+/* Explore Button - Sharp, Authoritative */
 .explore-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-family: var(--font-mono, monospace);
   font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink, #131110);
-  background: var(--gold, #a9873f);
-  padding: 9px 16px;
-  border-radius: 4px;
+  color: #fff;
+  background: var(--crimson, #8f2f2c);
+  padding: 10px 18px;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  border: 1px solid var(--crimson, #8f2f2c);
 }
-.archive-root.light .explore-btn { color: #fff; }
 
 .explore-btn:hover {
-  background: var(--crimson, #8f2f2c);
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(143, 47, 44, 0.3);
+  background: transparent;
+  color: var(--crimson-br, #b23e39);
+  border-color: var(--crimson-br, #b23e39);
 }
 
 .explore-arrow {
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 .explore-btn:hover .explore-arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
-/* Hamburger */
+/* Hamburger - Sharp, 3-line to X animation */
 .hamburger {
   display: none;
   background: transparent;
   border: 1px solid var(--rule, #3c3733);
-  padding: 8px;
-  border-radius: 4px;
+  padding: 10px;
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   transition: border-color 0.2s;
 }
-.archive-root.light .hamburger { border-color: var(--lp-rule, #d3cabb); }
+html.light .hamburger { border-color: var(--lp-rule, #d3cabb); }
 .hamburger:hover { border-color: var(--gold, #a9873f); }
 
 .hamburger-lines {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
   width: 18px;
+  height: 14px;
+  position: relative;
 }
 
 .line {
@@ -376,33 +398,33 @@ const CSS = `
   width: 100%;
   height: 2px;
   background: var(--paper, #ece5d8);
-  border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
 }
-.archive-root.light .line { background: var(--ink-soft, #1c1917); }
+html.light .line { background: var(--ink-soft, #1c1917); }
 
-.line-1.open { transform: translateY(3.5px) rotate(45deg); }
-.line-2.open { transform: translateY(-3.5px) rotate(-45deg); }
+.line-1.open { transform: translateY(7px) rotate(45deg); }
+.line-2.open { opacity: 0; transform: scaleX(0); }
+.line-3.open { transform: translateY(-7px) rotate(-45deg); }
 
-/* Mobile Menu Overlay */
+/* Mobile Menu Overlay - Solid, No Blur, Editorial */
 .mobile-menu-overlay {
   position: fixed;
   top: 72px;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(19, 17, 16, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--ink, #131110);
   z-index: 999;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-top: 1px solid var(--rule, #3c3733);
+  overflow-y: auto;
 }
-.archive-root.light .mobile-menu-overlay {
-  background: rgba(247, 244, 236, 0.95);
+html.light .mobile-menu-overlay {
+  background: var(--lp-paper, #f7f4ec);
   border-top-color: var(--lp-rule, #d3cabb);
 }
 
@@ -415,28 +437,27 @@ const CSS = `
 .mobile-nav {
   max-width: var(--max, 1180px);
   margin: 0 auto;
-  padding: 24px var(--edge, 40px);
+  padding: 32px var(--edge, 40px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .mobile-link {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
+  padding: 20px 0;
   text-decoration: none;
   color: var(--paper-dim, #b9b0a0);
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 1.1rem;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.5rem;
   font-weight: 500;
   border-bottom: 1px solid var(--rule-lite, #2a2623);
   opacity: 0;
   transform: translateX(-10px);
-  animation: mobile-link-fade-in 0.3s ease forwards;
+  animation: mobile-link-fade-in 0.4s ease forwards;
 }
-.archive-root.light .mobile-link {
+html.light .mobile-link {
   color: #5a5348;
   border-bottom-color: var(--lp-rule, #d3cabb);
 }
@@ -447,7 +468,7 @@ const CSS = `
 
 .mobile-active-mark {
   color: var(--crimson, #8f2f2c);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 
 @keyframes mobile-link-fade-in {
@@ -468,12 +489,13 @@ const CSS = `
 @media (max-width: 480px) {
   .brand-pre { display: none; }
   .theme-text { display: none; }
-  .theme-toggle { padding: 8px 10px; }
+  .theme-toggle { padding: 10px; }
+  .mobile-link { font-size: 1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .archive-nav, .nav-link, .explore-btn, .explore-arrow, .line, 
-  .mobile-menu-overlay, .mobile-link {
+  .archive-nav, .nav-link, .nav-link::after, .explore-btn, .explore-arrow, 
+  .line, .mobile-menu-overlay, .mobile-link {
     transition: none !important;
     animation: none !important;
     transform: none !important;
