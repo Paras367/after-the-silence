@@ -22,7 +22,6 @@ export default function Nav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Use imported links or fallback safely
   const navLinks = NAV_LINKS || DEFAULT_LINKS;
 
   // Initialize theme from localStorage on mount (prevents hydration mismatch)
@@ -32,17 +31,18 @@ export default function Nav() {
       const isLight = savedTheme === 'light';
       setIsLightMode(isLight);
       
+      // Reverted to body.classList to match your original working setup
       if (isLight) {
-        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
       } else {
-        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
       }
     } catch (e) {
       // Ignore localStorage errors (e.g., private browsing mode)
     }
   }, []);
 
-  // Scroll listener for subtle border enhancement
+  // Scroll listener for subtle "document tab" border enhancement
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -62,11 +62,11 @@ export default function Nav() {
     const next = !isLightMode;
     setIsLightMode(next);
     
-    // Toggle class on the <html> element for global, reliable CSS targeting
+    // Toggle class on the <body> element for global, reliable CSS targeting
     if (next) {
-      document.documentElement.classList.add('light');
+      document.body.classList.add('light');
     } else {
-      document.documentElement.classList.remove('light');
+      document.body.classList.remove('light');
     }
     
     try {
@@ -118,7 +118,9 @@ export default function Nav() {
               aria-label={isLightMode ? 'Switch to dark mode' : 'Switch to light mode'}
               title={isLightMode ? 'Switch to dark mode' : 'Switch to light mode'}
             >
-              <span className="theme-icon" aria-hidden="true">{isLightMode ? '☀' : '☾'}</span>
+              <span className={`theme-icon ${isLightMode ? 'rotate-in' : 'rotate-out'}`} aria-hidden="true">
+                {isLightMode ? '☀' : '☾'}
+              </span>
               <span className="theme-text">{isLightMode ? 'LIGHT' : 'DARK'}</span>
             </button>
             
@@ -157,7 +159,7 @@ export default function Nav() {
                   key={l.href} 
                   href={l.href} 
                   className={`mobile-link ${active ? 'active' : ''}`}
-                  style={{ animationDelay: `${i * 0.06}s` }}
+                  style={{ animationDelay: `${i * 0.05}s` }}
                 >
                   <span className="mobile-link-text">{l.label}</span>
                   {active && <span className="mobile-active-mark" aria-hidden="true">◈</span>}
@@ -172,7 +174,7 @@ export default function Nav() {
 }
 
 // ============================================================
-// ARCHIVAL NAVIGATION STYLESHEET (Solid, Editorial, No Glassmorphism)
+// ARCHIVAL NAVIGATION STYLESHEET (Subtle, Authoritative Effects)
 // ============================================================
 const CSS = `
 /* Base Nav Container - Solid, Opaque, Authoritative */
@@ -184,22 +186,29 @@ const CSS = `
   z-index: 1000;
   background: var(--ink, #131110);
   border-bottom: 1px solid var(--rule, #3c3733);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-top: 1px solid transparent; /* Prepares for scroll effect */
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
 }
 
+/* Scroll Effect: Mimics a physical file folder tab being highlighted */
 .archive-nav.scrolled {
+  border-top-color: rgba(143, 47, 44, 0.4); /* Subtle crimson top glow */
   border-bottom-color: var(--crimson, #8f2f2c);
-  box-shadow: 0 4px 0px rgba(143, 47, 44, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: rgba(19, 17, 16, 0.95);
 }
 
-/* Light Mode Overrides for Nav */
-html.light .archive-nav {
+/* Light Mode Overrides */
+body.light .archive-nav {
   background: var(--lp-paper, #f7f4ec);
   border-bottom-color: var(--lp-rule, #d3cabb);
+  border-top-color: transparent;
 }
-html.light .archive-nav.scrolled {
+body.light .archive-nav.scrolled {
+  border-top-color: rgba(143, 47, 44, 0.2);
   border-bottom-color: var(--crimson, #8f2f2c);
-  box-shadow: 0 4px 0px rgba(143, 47, 44, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  background: rgba(247, 244, 236, 0.95);
 }
 
 .nav-inner {
@@ -220,10 +229,14 @@ html.light .archive-nav.scrolled {
   gap: 8px;
   text-decoration: none;
   color: var(--paper, #ece5d8);
-  transition: opacity 0.2s;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
-html.light .nav-brand { color: var(--ink-soft, #1c1917); }
-.nav-brand:hover { opacity: 0.85; }
+body.light .nav-brand { color: var(--ink-soft, #1c1917); }
+
+.nav-brand:hover {
+  opacity: 0.85;
+  transform: translateX(2px); /* Subtle archival shift */
+}
 
 .brand-pre {
   font-family: var(--font-mono, monospace);
@@ -240,7 +253,7 @@ html.light .nav-brand { color: var(--ink-soft, #1c1917); }
   letter-spacing: 0.02em;
   color: var(--paper, #ece5d8);
 }
-html.light .brand-main { color: var(--ink-soft, #1c1917); }
+body.light .brand-main { color: var(--ink-soft, #1c1917); }
 
 .brand-dot {
   color: var(--crimson, #8f2f2c);
@@ -270,9 +283,20 @@ html.light .brand-main { color: var(--ink-soft, #1c1917); }
   display: flex;
   align-items: center;
   position: relative;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease, background 0.3s ease;
+  border-radius: 4px 4px 0 0; /* Archival tab shape */
 }
-html.light .nav-link { color: #5a5348; }
+body.light .nav-link { color: #5a5348; }
+
+/* Archival highlight effect on hover */
+.nav-link:hover {
+  color: var(--paper, #ece5d8);
+  background: rgba(169, 135, 63, 0.08); /* Subtle gold highlight */
+}
+body.light .nav-link:hover {
+  color: var(--ink-soft, #1c1917);
+  background: rgba(169, 135, 63, 0.1);
+}
 
 .nav-link::after {
   content: '';
@@ -284,19 +308,13 @@ html.light .nav-link { color: #5a5348; }
   background: var(--gold, #a9873f);
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav-link:hover {
-  color: var(--paper, #ece5d8);
-}
-html.light .nav-link:hover {
-  color: var(--ink-soft, #1c1917);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-link.active {
   color: var(--gold, #a9873f);
   font-weight: 600;
+  background: rgba(169, 135, 63, 0.05);
 }
 
 .nav-link.active::after {
@@ -311,7 +329,7 @@ html.light .nav-link:hover {
   gap: 16px;
 }
 
-/* Theme Toggle - Tactile, Inverting Box */
+/* Theme Toggle - Tactile, Inverting Box with Icon Spin */
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -324,9 +342,10 @@ html.light .nav-link:hover {
   letter-spacing: 0.1em;
   padding: 8px 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border-radius: 4px;
 }
-html.light .theme-toggle {
+body.light .theme-toggle {
   border-color: var(--lp-rule, #d3cabb);
   color: #5a5348;
 }
@@ -336,13 +355,20 @@ html.light .theme-toggle {
   color: var(--ink, #131110);
   border-color: var(--paper, #ece5d8);
 }
-html.light .theme-toggle:hover {
+body.light .theme-toggle:hover {
   background: var(--ink-soft, #1c1917);
   color: var(--lp-paper, #f7f4ec);
   border-color: var(--ink-soft, #1c1917);
 }
 
-.theme-icon { font-size: 0.9rem; line-height: 1; }
+.theme-icon { 
+  font-size: 0.9rem; 
+  line-height: 1; 
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-icon.rotate-in { transform: rotate(0deg) scale(1); }
+.theme-icon.rotate-out { transform: rotate(-15deg) scale(0.9); }
 
 /* Explore Button - Sharp, Authoritative */
 .explore-btn {
@@ -358,18 +384,20 @@ html.light .theme-toggle:hover {
   padding: 10px 18px;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   border: 1px solid var(--crimson, #8f2f2c);
+  border-radius: 4px;
 }
 
 .explore-btn:hover {
   background: transparent;
   color: var(--crimson-br, #b23e39);
   border-color: var(--crimson-br, #b23e39);
+  box-shadow: 0 0 15px rgba(143, 47, 44, 0.2);
 }
 
 .explore-arrow {
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
 }
 .explore-btn:hover .explore-arrow {
   transform: translateX(4px);
@@ -386,10 +414,14 @@ html.light .theme-toggle:hover {
   height: 44px;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s, background 0.3s;
+  border-radius: 4px;
 }
-html.light .hamburger { border-color: var(--lp-rule, #d3cabb); }
-.hamburger:hover { border-color: var(--gold, #a9873f); }
+body.light .hamburger { border-color: var(--lp-rule, #d3cabb); }
+.hamburger:hover { 
+  border-color: var(--gold, #a9873f); 
+  background: rgba(169, 135, 63, 0.05);
+}
 
 .hamburger-lines {
   display: flex;
@@ -406,16 +438,17 @@ html.light .hamburger { border-color: var(--lp-rule, #d3cabb); }
   width: 100%;
   height: 2px;
   background: var(--paper, #ece5d8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center;
+  border-radius: 2px;
 }
-html.light .line { background: var(--ink-soft, #1c1917); }
+body.light .line { background: var(--ink-soft, #1c1917); }
 
 .line-1.open { transform: translateY(7px) rotate(45deg); }
 .line-2.open { opacity: 0; transform: scaleX(0); }
 .line-3.open { transform: translateY(-7px) rotate(-45deg); }
 
-/* Mobile Menu Overlay - Solid, No Blur, Editorial */
+/* Mobile Menu Overlay - Solid, Editorial, Premium Stagger */
 .mobile-menu-overlay {
   position: fixed;
   top: 72px;
@@ -426,12 +459,12 @@ html.light .line { background: var(--ink-soft, #1c1917); }
   z-index: 999;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-15px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-top: 1px solid var(--rule, #3c3733);
   overflow-y: auto;
 }
-html.light .mobile-menu-overlay {
+body.light .mobile-menu-overlay {
   background: var(--lp-paper, #f7f4ec);
   border-top-color: var(--lp-rule, #d3cabb);
 }
@@ -462,12 +495,21 @@ html.light .mobile-menu-overlay {
   font-weight: 500;
   border-bottom: 1px solid var(--rule-lite, #2a2623);
   opacity: 0;
-  transform: translateX(-10px);
-  animation: mobile-link-fade-in 0.4s ease forwards;
+  transform: translateY(10px);
+  animation: mobile-link-fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: color 0.3s, padding-left 0.3s;
 }
-html.light .mobile-link {
+body.light .mobile-link {
   color: #5a5348;
   border-bottom-color: var(--lp-rule, #d3cabb);
+}
+
+.mobile-link:hover {
+  color: var(--paper, #ece5d8);
+  padding-left: 8px;
+}
+body.light .mobile-link:hover {
+  color: var(--ink-soft, #1c1917);
 }
 
 .mobile-link.active {
@@ -482,7 +524,7 @@ html.light .mobile-link {
 @keyframes mobile-link-fade-in {
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
@@ -503,7 +545,7 @@ html.light .mobile-link {
 
 @media (prefers-reduced-motion: reduce) {
   .archive-nav, .nav-link, .nav-link::after, .explore-btn, .explore-arrow, 
-  .line, .mobile-menu-overlay, .mobile-link {
+  .line, .mobile-menu-overlay, .mobile-link, .theme-icon {
     transition: none !important;
     animation: none !important;
     transform: none !important;
