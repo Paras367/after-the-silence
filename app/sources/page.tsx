@@ -353,8 +353,8 @@ export default function SourcesPage() {
 
                   <div className="corrections-contact">
                     <span className="contact-label">SUBMISSIONS:</span>
-                    <a href="mailto:corrections@afterthesilence.archive" className="contact-link">
-                      corrections@afterthesilence.archive
+                    <a href="mailto:dhimanparas605@gmail.com" className="contact-link">
+                      dhimanparas605@gmail.com
                     </a>
                   </div>
                 </div>
