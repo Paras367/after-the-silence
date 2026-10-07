@@ -23,7 +23,6 @@ const SUMMARY = {
   implemented: REFORMS.filter((r) => r.status === 'impl').length,
   partial: REFORMS.filter((r) => r.status === 'partial').length,
   failed: REFORMS.filter((r) => r.status === 'fail').length,
-  unknown: REFORMS.filter((r) => r.status === 'unknown').length,
 };
 
 // ============================================================
@@ -89,13 +88,6 @@ export default function ReformsPage() {
                       <span className="verdict-label">Failed</span>
                       <span className="verdict-count">{SUMMARY.failed}</span>
                     </div>
-                    {SUMMARY.unknown > 0 && (
-                      <div className="verdict-row verdict-unknown">
-                        <span className="verdict-mark">?</span>
-                        <span className="verdict-label">Unknown</span>
-                        <span className="verdict-count">{SUMMARY.unknown}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -122,10 +114,6 @@ export default function ReformsPage() {
                     <div className="legend-item">
                       <span className="legend-mark mark-fail">✕</span>
                       <span className="legend-text">Documented failure to enforce or implement</span>
-                    </div>
-                    <div className="legend-item">
-                      <span className="legend-mark mark-unknown">?</span>
-                      <span className="legend-text">Insufficient public data to assess</span>
                     </div>
                   </div>
                 </div>
@@ -231,8 +219,8 @@ export default function ReformsPage() {
                     <h3 className="finding-title">Transport Safety: A Recurring Failure</h3>
                     <p className="finding-text">
                       Mandates for panic buttons, GPS tracking, and driver verification have been announced 
-                      repeatedly since 2012. Yet every major transport-linked assault since then — including 
-                      the 2026 sleeper bus case — reveals the same enforcement gaps.
+                      repeatedly since 2012. Yet every major transport-linked assault since then reveals the 
+                      same enforcement gaps.
                     </p>
                   </div>
                 </div>
@@ -473,7 +461,6 @@ const CSS = `
 .verdict-impl { border-left-color: var(--ok, #5f7a4f); }
 .verdict-partial { border-left-color: var(--warn, #a9873f); }
 .verdict-fail { border-left-color: var(--fail, #8f2f2c); }
-.verdict-unknown { border-left-color: var(--paper-faint, #8a8175); }
 
 .verdict-mark {
   font-family: var(--font-mono, monospace);
@@ -484,7 +471,6 @@ const CSS = `
 .verdict-impl .verdict-mark { color: var(--ok, #5f7a4f); }
 .verdict-partial .verdict-mark { color: var(--warn, #a9873f); }
 .verdict-fail .verdict-mark { color: var(--fail, #8f2f2c); }
-.verdict-unknown .verdict-mark { color: var(--paper-faint, #8a8175); }
 
 .verdict-label {
   font-size: 0.85rem;
@@ -535,7 +521,6 @@ const CSS = `
 .mark-impl { color: var(--ok, #5f7a4f); }
 .mark-partial { color: var(--warn, #a9873f); }
 .mark-fail { color: var(--fail, #8f2f2c); }
-.mark-unknown { color: var(--paper-faint, #8a8175); }
 
 .legend-text {
   font-size: 0.78rem;
@@ -738,11 +723,6 @@ const CSS = `
   border-color: var(--fail, #8f2f2c);
   color: var(--fail, #8f2f2c);
   background: rgba(143, 47, 44, 0.1);
-}
-.mark-unknown {
-  border-color: var(--paper-faint, #8a8175);
-  color: var(--paper-faint, #8a8175);
-  background: rgba(138, 129, 117, 0.1);
 }
 
 /* Findings Grid */
