@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://afterthesilence.archive',
+    url: 'https://after-the-silence.vercel.app/',
     siteName: 'After The Silence',
     title: 'After The Silence — Public Interest Archive',
     description: 'Documenting major cases of violence against women in India, the reforms that followed, and what remains unresolved.',
