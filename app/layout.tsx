@@ -87,7 +87,7 @@ export const metadata: Metadata = {
 
  
   verification: {
-    google: 'your-google-site-verification-code-here', // TODO: Add your Google Search Console code
+    google: 'Coy8EDe0asgJ53OPW8SuXW6RcZOTxjx33E-QiWITZYA', // TODO: Add your Google Search Console code
   },
 
   // Icons & Manifest
