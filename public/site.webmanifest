@@ -1,0 +1,29 @@
+{
+  "name": "After The Silence Archive",
+  "short_name": "After The Silence",
+  "description": "An independent public-interest archive documenting major cases of violence against women in India, the reforms that followed, and what remains unresolved.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#131110",
+  "theme_color": "#131110",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

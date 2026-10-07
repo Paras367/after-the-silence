@@ -1,0 +1,9 @@
+# Allow all crawlers to index the site
+User-agent: *
+Allow: /
+
+# Point crawlers to your dynamic sitemap
+Sitemap: https://after-the-silence.vercel.app/sitemap.xml
+
+
+Disallow: /api/
