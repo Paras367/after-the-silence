@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 
 // Fallback in case lib/data is temporarily unavailable
+
 const DEFAULT_NAV_LINKS = [
   { href: '/cases', label: 'Case Records' },
   { href: '/timeline', label: 'Timeline' },
