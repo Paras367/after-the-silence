@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 
-// Fallback in case lib/data is temporarily unavailable
+// Import your links, with a safe fallback if the file is being edited
+import { NAV_LINKS } from '../lib/data';
 
-const DEFAULT_NAV_LINKS = [
+const DEFAULT_LINKS = [
   { href: '/cases', label: 'Case Records' },
   { href: '/timeline', label: 'Timeline' },
   { href: '/reforms', label: 'Reforms' },
@@ -21,18 +22,23 @@ export default function Nav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Use imported links or fallback safely
+  const navLinks = NAV_LINKS || DEFAULT_LINKS;
+
   // Initialize theme from localStorage on mount (prevents hydration mismatch)
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem('ats-theme');
-      if (savedTheme === 'light') {
-        setIsLightMode(true);
+      const isLight = savedTheme === 'light';
+      setIsLightMode(isLight);
+      
+      if (isLight) {
         document.documentElement.classList.add('light');
       } else {
         document.documentElement.classList.remove('light');
       }
     } catch (e) {
-      // Ignore localStorage errors (e.g., private browsing)
+      // Ignore localStorage errors (e.g., private browsing mode)
     }
   }, []);
 
@@ -41,8 +47,9 @@ export default function Nav() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+    
+    handleScroll(); // Set initial state
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -72,11 +79,6 @@ export default function Nav() {
     [pathname]
   );
 
-  // Safely access NAV_LINKS if it exists globally, otherwise use default
-  const navLinks = typeof (globalThis as any).NAV_LINKS !== 'undefined' 
-    ? (globalThis as any).NAV_LINKS 
-    : DEFAULT_NAV_LINKS;
-
   return (
     <>
       <style>{CSS}</style>
@@ -84,7 +86,7 @@ export default function Nav() {
         <div className="nav-inner">
           
           {/* Brand */}
-          <Link href="/" className="nav-brand">
+          <Link href="/" className="nav-brand" aria-label="After The Silence Home">
             <span className="brand-pre">AFTER THE</span>
             <span className="brand-main">SILENCE</span>
             <span className="brand-dot" aria-hidden="true">.</span>
@@ -114,14 +116,15 @@ export default function Nav() {
               onClick={toggleTheme} 
               aria-pressed={isLightMode}
               aria-label={isLightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+              title={isLightMode ? 'Switch to dark mode' : 'Switch to light mode'}
             >
-              <span className="theme-icon">{isLightMode ? '☀' : '☾'}</span>
+              <span className="theme-icon" aria-hidden="true">{isLightMode ? '☀' : '☾'}</span>
               <span className="theme-text">{isLightMode ? 'LIGHT' : 'DARK'}</span>
             </button>
             
             <Link href="/cases" className="explore-btn">
               EXPLORE ARCHIVE
-              <span className="explore-arrow">→</span>
+              <span className="explore-arrow" aria-hidden="true">→</span>
             </Link>
 
             <button 
@@ -131,7 +134,7 @@ export default function Nav() {
               aria-controls="mobile-menu" 
               aria-label="Toggle navigation menu"
             >
-              <span className="hamburger-lines">
+              <span className="hamburger-lines" aria-hidden="true">
                 <span className={`line line-1 ${isMobileMenuOpen ? 'open' : ''}`} />
                 <span className={`line line-2 ${isMobileMenuOpen ? 'open' : ''}`} />
                 <span className={`line line-3 ${isMobileMenuOpen ? 'open' : ''}`} />
@@ -141,7 +144,11 @@ export default function Nav() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} id="mobile-menu" aria-hidden={!isMobileMenuOpen}>
+        <div 
+          className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} 
+          id="mobile-menu" 
+          aria-hidden={!isMobileMenuOpen}
+        >
           <nav className="mobile-nav" aria-label="Mobile navigation">
             {navLinks.map((l, i) => {
               const active = isActive(l.href);
@@ -153,7 +160,7 @@ export default function Nav() {
                   style={{ animationDelay: `${i * 0.06}s` }}
                 >
                   <span className="mobile-link-text">{l.label}</span>
-                  {active && <span className="mobile-active-mark">◈</span>}
+                  {active && <span className="mobile-active-mark" aria-hidden="true">◈</span>}
                 </Link>
               );
             })}
